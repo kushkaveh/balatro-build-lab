@@ -67,3 +67,18 @@ Not yet verified — do not call until a row above exists:
 | Localization file | `localization/en-us.lua` returns `{descriptions={Joker={j_bl_x={name, text={...}}}}, misc={dictionary={}, labels={}}}`; loaded en-us → default → language, file wins over `loc_txt` | text markup `{C:mult}`, `{X:mult,C:white}`, `#1#` as vanilla | `src/utils.lua:187-238`; vanilla `localization/en-us.lua:1032-1038` | `localization/en-us.lua` |
 | `HEX(hex)` | `HEX('RRGGBB[AA]') -> {r,g,b,a}` | vanilla global | `../balatro-src/functions/misc_functions.lua:355` | rarity |
 | `SMODS.current_mod.config` | merged `config.lua` defaults + `config/<id>.jkr`; saved only by `SMODS.save_all_config()` (exit Mods menu / restart keybind); `mod.config_tab = function() return nodes end` adds a Config tab | | `src/ui.lua:1656-1705`, `:555-565`; `src/preflight/loader.lua:782` | `main.lua`, `config.lua` |
+
+## M3 — run injection (verified 2026-09-04)
+
+| API | Exact signature / behaviour | Source | Used in |
+|---|---|---|---|
+| `G.FUNCS.start_run(e, args)` | `args = {stake, seed, challenge, savetext}`; clears queue, `G:delete_run()`, `G:start_run(args)` | `../balatro-src/functions/button_callbacks.lua:2958-2979`; SMODS defaults `args = args or {}` (`lovely/fixes.toml:8-16`) | `src/run_injector.lua` |
+| `Game:start_run(args)` | reads `args.savetext/stake/seed/challenge` (+ SMODS `args.deck_choice={name=}`, `args.stake_choice=<order>`); challenge applied only when not loading a save | `../balatro-src/game.lua:2018-2168`; `smods/lovely/run_select.toml:22-45` | `src/hooks.lua` |
+| Challenge table shape | `{name, id?, rules={custom={}, modifiers={{id, value}}}, jokers={{id, edition='negative'|'foil'|'holo'|'polychrome', eternal, pinned}}, consumeables={}, vouchers={}, deck={type=<deck name>}?, restrictions={banned_cards={}, banned_tags={}, banned_other={}}}`; `modifiers` assign `G.GAME.starting_params[id] = value` (ids `dollars, hands, discards, hand_size, joker_slots, consumable_slots, reroll_cost`); omitting `id` leaves `G.GAME.challenge` nil (unlocks/high scores vanilla); `restrictions.*` must be tables (SMODS calls them if functions) | `game.lua:2063-2149`; `challenges.lua:220-252`; `smods/lovely/challenge.toml:47-93` | `src/run_injector.lua` |
+| `add_joker(joker, edition, silent, eternal)` | vanilla creator used by the challenge loop; `edition` is a type name → `card:set_edition{[edition]=true}` | `../balatro-src/functions/common_events.lua:372-384` | (indirect) |
+| `get_starting_params()` | `{dollars=4, hand_size=8, discards=3, hands=4, reroll_cost=5, joker_slots=5, ante_scaling=1, consumable_slots=2, no_faces=false, erratic_suits_and_ranks=false}`; stake/deck effects modify it before the challenge modifiers overwrite | `../balatro-src/functions/misc_functions.lua:1868-1881`; `game.lua:2050-2061` | `src/run_config.lua` |
+| Seed | `args.seed` → `G.GAME.seeded = true`, `pseudorandom.seed = args.seed` | `game.lua:2162-2168` | injector |
+| `G.P_CENTERS[key]` / `G.P_STAKES[key]` | Back centres have `.name` (deck name used by `get_deck_from_name`); stakes have `.order` (1-based index = `G.GAME.stake`) | `game.lua:628-644`, `:252-260`; `smods/src/game_object.lua:798-845` | `run_config`, `injector` |
+| `SMODS.Keybind` | `SMODS.Keybind{key_pressed='f9', held_keys={}, event='pressed'|'released'|'held', held_duration=1, action=function(self) end}` | `smods/src/game_object.lua:3776-3803`; `lovely/keybind.toml` | `run_injector.lua` (M3 temp) |
+| `G.STAGE == G.STAGES.MAIN_MENU` | stage enum | `../balatro-src/globals.lua` (STAGES); used at `button_callbacks.lua:5313` | injector |
+| `sendWarnMessage` / `sendErrorMessage` | `(message, logger)` | `smods/src/preflight/logging.lua:31-38` | hooks, injector |
