@@ -1,0 +1,15 @@
+# Lovely runtime output (never lives in the repo)
+lovely/dump/
+lovely/log/
+*.log
+
+# Editors / OS
+.idea/
+.vscode/
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Local scratch
+*.tmp
+*.bak
