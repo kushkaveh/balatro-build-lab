@@ -36,6 +36,15 @@ when its section is green.
 - [ ] Run is saveable and continuable
 - [ ] Vanilla New Run unaffected
 
+## M4 — Build Lab page
+- [ ] Play → New Run flow shows deck page, stake page, then **Build Lab** (nav button text)
+- [ ] Page shows "Starting Jokers", five empty slots with Pick buttons, deck preview + stake tower on the right
+- [ ] "DEV: sample build" fills Blueprint (foil) + Understudy (negative); cards render with edition shaders; hover shows tooltips
+- [ ] Clear (X) empties a slot
+- [ ] Play starts the run with the two Jokers, $20; save + Continue works
+- [ ] Back / Esc closes the overlay without errors; reopening shows the last config
+- [ ] Toggle "Hide Build Lab page" in config → page skipped (M9)
+
 ## Builder (M4–M6)
 - [ ] Every deck incl. modded; every stake
 - [ ] Empty slots (0–5 Jokers); duplicate Joker in 2+ slots; same Joker ×5

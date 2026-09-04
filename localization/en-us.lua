@@ -16,6 +16,16 @@ return {
     misc = {
         dictionary = {
             k_bl_impossible = 'Impossible',
+            -- run-select page (SMODS nav button uses 'run_select_' .. page key)
+            run_select_build_lab = 'Build Lab',
+            bl_starting_jokers = 'Starting Jokers',
+            bl_jokers_short = 'Jokers',
+            bl_empty_slot = 'Empty',
+            bl_missing = 'Missing mod',
+            bl_missing_hint = 'Not loaded:',
+            bl_pick = 'Pick',
+            bl_change = 'Change',
+            bl_dev_sample = 'DEV: sample build',
         },
         labels = {
             k_bl_impossible = 'Impossible',

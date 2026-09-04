@@ -64,22 +64,3 @@ function INJ.start_run(cfg)
     end
     G.FUNCS.start_run(nil, INJ.run_args(cfg))
 end
-
-------------------------------------------------------------------------------------------------
--- M3 TEMPORARY: F9 at the main menu starts a hardcoded run. Removed in M4.
--- SMODS.Keybind{key_pressed, held_keys, event='pressed', action=function(self)}
--- (verified: ../reference-mods/smods/src/game_object.lua:3776-3803, lovely/keybind.toml)
-------------------------------------------------------------------------------------------------
-SMODS.Keybind {
-    key_pressed = 'f9',
-    action = function(self)
-        local cfg = RC.new()
-        cfg.deck = 'b_red'
-        cfg.stake = 'stake_white'
-        cfg.jokers[1] = { key = 'j_blueprint', edition = 'e_foil' }
-        cfg.jokers[2] = { key = 'j_bl_understudy', edition = 'e_negative' }
-        cfg.params.dollars = 20
-        sendInfoMessage('F9: starting hardcoded Build Lab run', 'BuildLab')
-        INJ.start_run(cfg)
-    end,
-}

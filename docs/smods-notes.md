@@ -82,3 +82,25 @@ Not yet verified — do not call until a row above exists:
 | `SMODS.Keybind` | `SMODS.Keybind{key_pressed='f9', held_keys={}, event='pressed'|'released'|'held', held_duration=1, action=function(self) end}` | `smods/src/game_object.lua:3776-3803`; `lovely/keybind.toml` | `run_injector.lua` (M3 temp) |
 | `G.STAGE == G.STAGES.MAIN_MENU` | stage enum | `../balatro-src/globals.lua` (STAGES); used at `button_callbacks.lua:5313` | injector |
 | `sendWarnMessage` / `sendErrorMessage` | `(message, logger)` | `smods/src/preflight/logging.lua:31-38` | hooks, injector |
+
+## M4 — run-select page + panel UI (verified 2026-09-04)
+
+| API | Exact signature / behaviour | Source | Used in |
+|---|---|---|---|
+| `SMODS.RunSelectPage{...}` | fields: `key` (req), `page`, `grid_size`, `pool`/`generate_pool`, `definition(page_def)`, `settings(self)`, `set_default(self, last)`, `selected_text(self, sel)`, `quick_start_text()`, `optional(self)`, `can_continue(self)`, `start_run(self, choice)`, `include_deck_preview`, `include_stake_tower`, `automatic_preview`, `random_select`, `create_selection_card`, `card_click`, `card_hover`; choice stored in `SMODS.RunSelect.Setup.choices[key]`; nav label `localize('run_select_'..key)`; loaded before mods | `smods/src/game_objects/runselectpage.lua:1-99`; `smods/src/utils/run_select.lua:31-125, 198-266, 303-343`; `game_object.lua:4145`, `utils.lua:4618` | `src/ui/buildlab_tab.lua` |
+| `SMODS.RunSelect.Functions.start_run()` | copies every `Setup.choices[k]` into `run_args`, saves `PROFILES[..].last_choices`, converts `deck_choice`/`stake_choice`, calls `G.FUNCS.start_run(nil, run_args)` — so `args.build_lab` reaches `Game:start_run` | `run_select.lua:303-330` | hooks |
+| Vanilla run-select replacement | `lovely/run_select.toml:6-20` swaps the New Run tab to `G.UIDEF.run_select_galdur` whenever a mod adds a third page (the "Use Vanilla Run Select" toggle is ignored then) | `smods/lovely/run_select.toml`; `localization/en-us.lua:348-351` | (design) |
+| `CardArea(X, Y, W, H, config)` | config: `card_limit, type ('title' = invisible bg), highlight_limit, ...`; registers in `G.I.CARDAREA`; `emplace(card, location, stay_flipped)`, `remove_card(card)`, `remove()` | `../balatro-src/cardarea.lua:5-30, 32-64, 66-92, 270-280, 657-668` | `src/ui/main_panel.lua` |
+| `Card(X, Y, W, H, card, center, params)` | params read: `playing_card, viewed_back, bypass_discovery_center, bypass_discovery_ui, bypass_lock`; `card.params` kept; `card.no_ui` disables hover popup; `facing/sprite_facing` | `../balatro-src/card.lua:5-77, 4306-4327` | main_panel, picker |
+| Menu card grid pattern | Collection: 3 CardAreas `{card_limit=5, type='title', highlight_limit=0, collection=true}` in `G.UIT.O` nodes, cards `Card(area.T.x + area.T.w/2, area.T.y, G.CARD_W, G.CARD_H, G.P_CARDS.empty, center)`, page change removes each card (`area:remove_card(c); c:remove()`) then re-emplaces | `UI_definitions.lua:3535-3575`; `button_callbacks.lua:602-621` | main_panel, picker |
+| Nested UIBox swap | `e.config.object:remove(); e.config.object = UIBox{definition=..., config={offset={x=0,y=0}, parent=e, type='cm'}}; e.UIBox:recalculate()`; `UIBox:get_UIE_by_ID(id, node)` | `button_callbacks.lua:1299-1314`; `engine/ui.lua:101, 306`; `run_select.lua:361-374` | main_panel |
+| `UIBox_button(args)` | `button, func, colour, label={...}, minw, minh, scale, ref_table, id, col, one_press, focus_args, text_colour`; click → `G.FUNCS[button](e)`, `e.config.ref_table` = args.ref_table | `UI_definitions.lua:6376-6436` | UI |
+| `G.UIT` node types | `T=1, B=2, C=3, R=4, O=5, ROOT=7, S=8, I=9`; config fields incl. `align, padding, r, colour, minw, minh, maxw, hover, shadow, emboss, button, func, ref_table, ref_value, id, focus_args, object, text, scale` | `../balatro-src/globals.lua:476-486`; `engine/ui.lua` | UI |
+| `G.FUNCS.exit_overlay_menu()` | removes `G.OVERLAY_MENU`, unpauses; wrapped by SMODS and Galdur for cleanup | `button_callbacks.lua:1359-1371`; `run_select.lua:749-753` | hooks |
+| `Card:click()` | vanilla highlight routing; SMODS wraps it for run-select cards via `params` | `card.lua:4610-4623`; `run_select.lua:908-930` | hooks |
+| `remove_all(t)` | removes and `:remove()`s every element | `misc_functions.lua:144-150` | UI cleanup |
+| `play_sound(code, per, vol)` | codes used: `button, card1, cardSlide1, tarot1, generic1, cancel, highlight1, timpani, gold_seal, negative` (files in `resources/sounds/`) | `misc_functions.lua:695, 1892-1910` | UI |
+| `localize` | `localize('k_x')` → `misc.dictionary`; `localize{type='name_text', set='Joker', key=}` → name; `localize{type='variable', key='a_xmult', vars={n}}` | `misc_functions.lua:1689-1749` | UI, Jokers |
+| `G.C` colours | `RED, BLUE, ORANGE, GREEN, BLACK, L_BLACK, WHITE, CLEAR, MULT, CHIPS, MONEY, FILTER, UI.TEXT_LIGHT/TEXT_DARK/TEXT_INACTIVE, RARITY[1..4]` | `globals.lua:353-472` | UI |
+| `G.CARD_W / G.CARD_H` | `2.4*35/41`, `2.4*47/41` | `globals.lua:274-275` | UI |
+| Modded-object detection | `center.mod` is set to the registering mod (`nil` for vanilla) | `smods/src/game_object.lua:27` | picker |
