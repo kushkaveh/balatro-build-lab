@@ -1,7 +1,8 @@
-# Build Lab
+<img width="800" height="350" alt="Buildlab" src="https://github.com/user-attachments/assets/88e01fb9-d106-4ef7-b2d9-99d9cc71a547" />
 
-A mod fo<img width="800" height="350" alt="Buildlab" src="https://github.com/user-attachments/assets/b2cbb6dc-8365-475b-ac09-1da06b0703e3" />
-r [Balatro](https://www.playbalatro.com/) that adds two things:
+## Build Lab
+
+A mod for [Balatro](https://www.playbalatro.com/) that adds two things:
 
 1. **The Build Lab**, a page in the New Run screen where you choose your starting Jokers (with editions), your
    starting money, hands, discards and slots, and save the whole thing as a preset.
