@@ -10,6 +10,10 @@ Thumbs.db
 desktop.ini
 .DS_Store
 
+# User data written by the mod at runtime
+presets.json
+presets.json.corrupt
+
 # Local scratch
 *.tmp
 *.bak

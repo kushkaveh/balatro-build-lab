@@ -127,3 +127,15 @@ Not yet verified — do not call until a row above exists:
 | `Card:juice_up(scale, rot_amount)` | wobble animation | `card.lua:4333-4338` | UI |
 | `G.C.DARK_EDITION`, `G.C.GREEN` | colours | `globals.lua:353-472` | UI |
 | Starting-param semantics | challenge `rules.modifiers` overwrite `starting_params` after stake and deck effects (`Back:apply_to_run` at `game.lua:2061`), so Build Lab only writes params the user set ("Auto" = untouched) | `game.lua:2050-2106` | run_config, injector |
+
+## M7 — presets (verified 2026-09-04)
+
+| API | Exact signature / behaviour | Source | Used in |
+|---|---|---|---|
+| `NFS` (nativefs global) | `NFS.read(name) -> contents, size|nil, err`; `NFS.write(name, data, size) -> ok, err`; `NFS.getInfo(path, filtertype) -> info|nil`; `NFS.remove(name)`; absolute or game-relative paths | `smods/src/preflight/core.lua:23-33`; `libs/nativefs/nativefs.lua:257, 290, 341, 402` | `src/presets.lua` |
+| `JSON` (rxi json global) | `JSON.encode(t) -> string` (errors on sparse arrays / mixed keys; empty table → `[]`), `JSON.decode(s) -> table` (raises on invalid input → pcall) | `smods/src/preflight/core.lua:47`; `libs/json/json.lua:59-98, 134, 375` | presets |
+| `mod.path` | mod folder with trailing `/` | `smods/src/preflight/loader.lua:312` | presets |
+| `SMODS.RunSelect.Setup.choices` | `deck_choice` (Back key), `stake_choice` (Stake key), `seed`, `enable_seed`, plus one entry per page key | `run_select.lua:16-20, 44-47, 303-322` | presets_modal |
+| `SMODS.RunSelect.Functions.populate_preview_ui(key, to_add, silent, _remove)` / `populate_stake_tower(stake, silent)` | refresh the deck preview / stake tower after changing `choices`; require `Internals.preview_area` / `Internals.stake_tower` (built when the page has `include_deck_preview` / `include_stake_tower`) | `run_select.lua:594-644, 688-719, 74-83` | presets_modal |
+| `localize{type='name_text', set='Back'|'Stake', key=}` | deck / stake display names | `misc_functions.lua:1689-1749`; used by SMODS `runselectpage.lua:122, 155` | presets_modal |
+| CardArea `card_w` | per-area card width for mini previews | `cardarea.lua:5-30`; DeckCreator `GUI.lua:3342` (GPL-3.0) | presets_modal |

@@ -86,6 +86,10 @@ when its section is green.
 - [ ] Forger + Midas Mask; Forger save/reload mid-round (no double stamp)
 
 ## Presets (M7)
+- [ ] Presets button opens the list in place; built-ins Facepocalypse and Baron Machine listed in orange with mini cards
+- [ ] Type a name, "Save current as" → row appears; `presets.json` written in the mod folder
+- [ ] Load sets slots, editions, params, AND switches the deck preview + stake tower to the preset's deck/stake
+- [ ] Overwrite replaces the config; Delete removes the row; built-ins have Load only
 - [ ] Save / load / delete; restart persistence
 - [ ] Preset referencing an uninstalled modded Joker → warning slot, run still startable
 - [ ] Hand-corrupted JSON → reset with message, no crash
