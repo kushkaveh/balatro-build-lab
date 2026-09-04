@@ -14,7 +14,7 @@ local MP = BL.ui.main_panel
 local P = BL.presets
 
 PM.PER_PAGE = 3
-PM.MINI = 0.4
+PM.MINI = 0.34
 PM.areas = {}
 PM.state = { name = '', page = 1, pages = 1, page_text = '', notice = '' }
 
@@ -79,10 +79,11 @@ end
 
 local function mini_area(entry)
     local w, h = G.CARD_W * PM.MINI, G.CARD_H * PM.MINI
-    local area = CardArea(G.ROOM.T.w, G.ROOM.T.h, RC.SLOTS * w, h,
-        { card_limit = RC.SLOTS, type = 'title', highlight_limit = 0, card_w = w })
+    local n = math.max(RC.BASE_SLOTS, RC.capacity(entry.config))
+    local area = CardArea(G.ROOM.T.w, G.ROOM.T.h, n * w, h,
+        { card_limit = n, type = 'title', highlight_limit = 0, card_w = w })
     PM.areas[#PM.areas + 1] = area
-    for i = 1, RC.SLOTS do
+    for i = 1, n do
         local s = entry.config.jokers[i]
         local center = s and s.key and G.P_CENTERS[s.key]
         if center and center.set == 'Joker' then
@@ -107,12 +108,12 @@ local function preset_row(entry)
     local missing = RC.missing_slots(cfg)
     local summary = deck .. ' · ' .. stake .. ' · ' .. RC.filled_slots(cfg) .. ' ' .. localize('bl_jokers_short')
     return { n = G.UIT.R, config = { align = 'cm', padding = 0.05, r = 0.1, colour = G.C.L_BLACK, minw = MP.PANEL_W - 0.3 }, nodes = {
-        { n = G.UIT.C, config = { align = 'cl', minw = 2.7, maxw = 2.7, padding = 0.02 }, nodes = {
+        { n = G.UIT.C, config = { align = 'cl', minw = 3.2, maxw = 3.2, padding = 0.02 }, nodes = {
             { n = G.UIT.R, config = { align = 'cl' }, nodes = {
-                { n = G.UIT.T, config = { text = entry.name, scale = 0.36, colour = entry.builtin and G.C.ORANGE or G.C.WHITE, shadow = true } },
+                { n = G.UIT.T, config = { text = entry.name, scale = 0.4, colour = entry.builtin and G.C.ORANGE or G.C.WHITE, shadow = true } },
             } },
             { n = G.UIT.R, config = { align = 'cl' }, nodes = {
-                { n = G.UIT.T, config = { text = summary, scale = 0.24, colour = G.C.UI.TEXT_INACTIVE } },
+                { n = G.UIT.T, config = { text = summary, scale = 0.27, colour = G.C.UI.TEXT_INACTIVE } },
             } },
             (#missing > 0) and { n = G.UIT.R, config = { align = 'cl' }, nodes = {
                 { n = G.UIT.T, config = { text = localize('bl_missing_hint') .. ' ' .. #missing, scale = 0.24, colour = G.C.RED } },
@@ -120,9 +121,9 @@ local function preset_row(entry)
         } },
         { n = G.UIT.C, config = { align = 'cm', padding = 0.02 }, nodes = { mini_area(entry) } },
         { n = G.UIT.C, config = { align = 'cm', padding = 0.02 }, nodes = {
-            UIBox_button { ref_table = { name = entry.name }, button = 'bl_preset_load', label = { localize('bl_load') }, minw = 0.95, minh = 0.38, scale = 0.28, colour = G.C.BLUE, col = true },
-            (not entry.builtin) and UIBox_button { ref_table = { name = entry.name }, button = 'bl_preset_overwrite', label = { localize('bl_overwrite') }, minw = 0.95, minh = 0.38, scale = 0.28, colour = G.C.ORANGE, col = true } or nil,
-            (not entry.builtin) and UIBox_button { ref_table = { name = entry.name }, button = 'bl_preset_delete', label = { 'X' }, minw = 0.38, minh = 0.38, scale = 0.28, colour = G.C.RED, col = true } or nil,
+            UIBox_button { ref_table = { name = entry.name }, button = 'bl_preset_load', label = { localize('bl_load') }, minw = 1.1, minh = 0.42, scale = 0.31, colour = G.C.BLUE, col = true },
+            (not entry.builtin) and UIBox_button { ref_table = { name = entry.name }, button = 'bl_preset_overwrite', label = { localize('bl_overwrite') }, minw = 1.1, minh = 0.42, scale = 0.31, colour = G.C.ORANGE, col = true } or nil,
+            (not entry.builtin) and UIBox_button { ref_table = { name = entry.name }, button = 'bl_preset_delete', label = { 'X' }, minw = 0.42, minh = 0.42, scale = 0.31, colour = G.C.RED, col = true } or nil,
         } },
     } }
 end
@@ -146,21 +147,19 @@ function PM.root()
     return { n = G.UIT.ROOT, config = { align = 'cm', colour = G.C.CLEAR }, nodes = {
         { n = G.UIT.C, config = { align = 'cm', padding = 0.03 }, nodes = {
             MP.header(localize('bl_presets'), {
-                (st.notice ~= '') and { n = G.UIT.C, config = { align = 'cr', maxw = 3.6 }, nodes = {
-                    { n = G.UIT.T, config = { text = st.notice, scale = 0.24, colour = G.C.RED } } } } or nil,
-                MP.small_button { id = 'bl_presets_back', button = 'bl_presets_back', label = localize('b_back'), colour = G.C.ORANGE, minw = 1.1 },
-            }),
-            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 3.9, colour = G.C.BLACK, padding = 0.1, r = 0.1, emboss = 0.05 }, nodes = {
+                MP.button { id = 'bl_presets_back', button = 'bl_presets_back', label = localize('b_back'), colour = G.C.ORANGE, minw = 1.3 },
+            }, (st.notice ~= '') and st.notice or nil),
+            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 4.0, colour = G.C.BLACK, padding = 0.1, r = 0.1, emboss = 0.05 }, nodes = {
                 { n = G.UIT.C, config = { align = 'cm', padding = 0.03 }, nodes = rows },
             } },
             -- footer: name input + Save | < page >
             { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.5, padding = 0.02 }, nodes = {
-                { n = G.UIT.C, config = { align = 'cl', minw = 5.4, padding = 0.02 }, nodes = {
-                    create_text_input { w = 2.8, h = 0.5, text_scale = 0.35, max_length = P.MAX_NAME, prompt_text = localize('bl_preset_name'), ref_table = PM.state, ref_value = 'name', colour = G.C.BLUE },
+                { n = G.UIT.C, config = { align = 'cl', minw = 7.0, padding = 0.02 }, nodes = {
+                    create_text_input { w = 3.6, h = 0.55, text_scale = 0.4, max_length = P.MAX_NAME, prompt_text = localize('bl_preset_name'), ref_table = PM.state, ref_value = 'name', colour = G.C.BLUE },
                     { n = G.UIT.C, config = { align = 'cm', minw = 0.1 } },
-                    UIBox_button { id = 'bl_preset_save', button = 'bl_preset_save', label = { localize('bl_save_current') }, minw = 1.7, minh = 0.42, scale = 0.3, colour = G.C.GREEN, col = true },
+                    UIBox_button { id = 'bl_preset_save', button = 'bl_preset_save', label = { localize('bl_save_current') }, minw = 2.0, minh = 0.5, scale = 0.34, colour = G.C.GREEN, col = true },
                 } },
-                { n = G.UIT.C, config = { align = 'cr', minw = MP.PANEL_W - 5.4 }, nodes = {
+                { n = G.UIT.C, config = { align = 'cr', minw = MP.PANEL_W - 7.0 }, nodes = {
                     UIBox_button { button = 'bl_presets_prev', label = { '<' }, minw = 0.5, minh = 0.42, scale = 0.35, colour = G.C.RED, col = true },
                     { n = G.UIT.C, config = { align = 'cm', minw = 1.6 }, nodes = {
                         { n = G.UIT.T, config = { ref_table = PM.state, ref_value = 'page_text', scale = 0.32, colour = G.C.WHITE, shadow = true } },

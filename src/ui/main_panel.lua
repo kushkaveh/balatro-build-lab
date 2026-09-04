@@ -1,10 +1,12 @@
---- Build Lab main panel: five Joker slots rendered as real Cards in CardAreas, an edition cycler under
---- each slot (live shader preview), a compact header (Presets / Advanced / Clear) and a one-line summary.
---- Height budget: the whole panel must stay under the SMODS deck-preview column (5.95 units,
+--- Build Lab main panel: Joker slots rendered as real Cards in CardAreas, an edition cycler under each
+--- slot (live shader preview), a header (Presets / Advanced / Clear) and a one-line status.
+--- Slots are dynamic: 5 base, +1 per Negative-edition Joker (Negatives don't use a slot, card.lua:410-413),
+--- or the Joker Slots override, capped at 10. Up to 6 slots = one row; 7-10 = two rows at reduced scale.
+--- Height budget: everything must stay under the SMODS deck-preview column (5.95 units,
 --- run_select.lua:565) so the page never pushes the nav bar (screen is 11.5 units, globals.lua:272).
 --- Imitates SMODS' run-select selection grid (src/utils/run_select.lua:376-439, black rounded box) and the
---- vanilla Collection (UI_definitions.lua:3535-3575) for Cards: Card(x, y, G.CARD_W, G.CARD_H,
---- G.P_CARDS.empty, center) then area:emplace(card).
+--- vanilla Collection (UI_definitions.lua:3535-3575) for Cards: Card(x, y, w, h, G.P_CARDS.empty, center)
+--- then area:emplace(card). Cards accept any w/h (SMODS stake chips, runselectpage.lua:180).
 --- Panel swapping follows G.FUNCS.change_tab (button_callbacks.lua:1299-1314). Cyclers: create_option_cycle
 --- (UI_definitions.lua:1955-2045); its args table is handed back as cycle_config (button_callbacks.lua:571-579),
 --- so extra fields (bl_slot / bl_param) ride along.
@@ -15,8 +17,9 @@ local MP = {}
 BL.ui.main_panel = MP
 local RC = BL.run_config
 
-MP.PANEL_W = 8.7
+MP.PANEL_W = 11.4
 MP.areas = {}
+MP.scale = 1
 MP.modal_open = false
 
 -- Edition labels from vanilla misc.labels (en-us.lua:3820-3830).
@@ -68,12 +71,21 @@ function MP.cleanup()
     MP.modal_open = false
 end
 
-local function build_slot_areas()
+--- Layout for n visible slots: columns per row and card scale.
+local function layout_for(n)
+    if n <= 5 then return { rows = 1, cols = n, scale = 1.0 } end
+    if n == 6 then return { rows = 1, cols = 6, scale = 0.84 } end
+    return { rows = 2, cols = math.ceil(n / 2), scale = 0.64 }
+end
+
+local function build_slot_areas(n, scale)
     MP.cleanup()
-    for i = 1, RC.SLOTS do
+    MP.scale = scale
+    local w, h = G.CARD_W * scale, G.CARD_H * scale
+    for i = 1, n do
         -- CardArea(X, Y, W, H, config): cardarea.lua:5-30; 'title' areas draw no background (cardarea.lua:276)
-        MP.areas[i] = CardArea(G.ROOM.T.w, G.ROOM.T.h, G.CARD_W, G.CARD_H,
-            { card_limit = 1, type = 'title', highlight_limit = 0, bl_slot = i })
+        MP.areas[i] = CardArea(G.ROOM.T.w, G.ROOM.T.h, w, h,
+            { card_limit = 1, type = 'title', highlight_limit = 0, card_w = w, bl_slot = i })
     end
 end
 
@@ -86,7 +98,8 @@ function MP.populate_slot(i)
     local slot = MP.config().jokers[i]
     local center = slot and slot.key and G.P_CENTERS[slot.key]
     if not (center and center.set == 'Joker') then return end
-    local card = Card(area.T.x, area.T.y, G.CARD_W, G.CARD_H, G.P_CARDS.empty, center,
+    local w, h = G.CARD_W * MP.scale, G.CARD_H * MP.scale
+    local card = Card(area.T.x, area.T.y, w, h, G.P_CARDS.empty, center,
         { bypass_discovery_center = true, bypass_discovery_ui = true })
     card.params.bl_slot = i
     -- SMODS Card:set_edition accepts 'e_<type>' keys (smods/src/overrides.lua:2072-2107); nil removes
@@ -95,7 +108,7 @@ function MP.populate_slot(i)
 end
 
 function MP.populate_all()
-    for i = 1, RC.SLOTS do MP.populate_slot(i) end
+    for i = 1, #MP.areas do MP.populate_slot(i) end
 end
 
 --- Swap the panel content (main panel <-> picker / presets / advanced). def_fn returns a ROOT node.
@@ -118,19 +131,24 @@ end
 ------------------------------------------------------------------------------------------------
 
 --- Standard sub-screen header: title on the left, optional right-hand nodes.
-function MP.header(title, right_nodes)
-    return { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.5, padding = 0.03 }, nodes = {
-        { n = G.UIT.C, config = { align = 'cl', minw = 3.2 }, nodes = {
-            { n = G.UIT.T, config = { text = title, scale = 0.42, colour = G.C.WHITE, shadow = true } },
+function MP.header(title, right_nodes, subtitle)
+    return { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.6, padding = 0.03 }, nodes = {
+        { n = G.UIT.C, config = { align = 'cl', minw = 4.2, padding = 0.02 }, nodes = {
+            { n = G.UIT.R, config = { align = 'cl' }, nodes = {
+                { n = G.UIT.T, config = { text = title, scale = 0.5, colour = G.C.WHITE, shadow = true } },
+            } },
+            subtitle and { n = G.UIT.R, config = { align = 'cl' }, nodes = {
+                { n = G.UIT.T, config = { text = subtitle, scale = 0.27, colour = G.C.UI.TEXT_INACTIVE } },
+            } } or nil,
         } },
-        { n = G.UIT.C, config = { align = 'cr', minw = MP.PANEL_W - 3.2, padding = 0.02 }, nodes = right_nodes or {} },
+        { n = G.UIT.C, config = { align = 'cr', minw = MP.PANEL_W - 4.2, padding = 0.03 }, nodes = right_nodes or {} },
     } }
 end
 
-function MP.small_button(args)
+function MP.button(args)
     return UIBox_button {
         id = args.id, ref_table = args.ref_table, button = args.button, label = { args.label },
-        minw = args.minw or 1.3, minh = 0.42, scale = 0.32, colour = args.colour or G.C.RED, col = true,
+        minw = args.minw or 1.5, minh = args.minh or 0.5, scale = args.scale or 0.36, colour = args.colour or G.C.RED, col = true,
     }
 end
 
@@ -138,7 +156,7 @@ end
 -- Main panel nodes
 ------------------------------------------------------------------------------------------------
 
-local function edition_cycler(i)
+local function edition_cycler(i, scale)
     local slot = MP.config().jokers[i]
     local labels = {}
     for k, e in ipairs(RC.EDITIONS) do labels[k] = edition_label(e) end
@@ -147,66 +165,86 @@ local function edition_cycler(i)
         options = labels,
         current_option = edition_index(slot and slot.edition or 'e_base'),
         opt_callback = 'bl_cycle_edition',
-        w = 1.0, h = 0.42, scale = 0.62, text_scale = 0.38,
-        colour = G.C.DARK_EDITION,
+        w = 1.15 * scale, h = 0.5 * scale, scale = 0.7 * scale, text_scale = 0.42 * scale,
+        colour = (slot and slot.edition == 'e_negative') and G.C.DARK_EDITION or G.C.RED,
         no_pips = true,
     }
 end
 
-local function slot_column(i)
+local function slot_column(i, scale, over_cap)
     local slot = MP.config().jokers[i]
     local filled = slot and slot.key
-    return { n = G.UIT.C, config = { align = 'cm', padding = 0.03 }, nodes = {
+    local frame_colour = over_cap and filled and G.C.RED or G.C.L_BLACK
+    local bs = 0.42 * scale -- button height
+    return { n = G.UIT.C, config = { align = 'cm', padding = 0.03 * scale }, nodes = {
         -- slot frame (reads as a Joker slot even when empty)
-        { n = G.UIT.R, config = { align = 'cm', colour = G.C.L_BLACK, r = 0.1, padding = 0.04, emboss = 0.04 }, nodes = {
+        { n = G.UIT.R, config = { align = 'cm', colour = frame_colour, r = 0.1, padding = 0.05 * scale, emboss = 0.04 }, nodes = {
             { n = G.UIT.O, config = { object = MP.areas[i], focus_args = { snap_to = (i == 1) } } },
         } },
-        filled and { n = G.UIT.R, config = { align = 'cm' }, nodes = { edition_cycler(i) } }
-            or { n = G.UIT.R, config = { align = 'cm', minh = 0.42 }, nodes = {
-                { n = G.UIT.T, config = { text = localize('bl_empty_slot'), scale = 0.28, colour = G.C.UI.TEXT_INACTIVE } } } },
-        { n = G.UIT.R, config = { align = 'cm', padding = 0.02 }, nodes = {
+        filled and { n = G.UIT.R, config = { align = 'cm' }, nodes = { edition_cycler(i, scale) } }
+            or { n = G.UIT.R, config = { align = 'cm', minh = 0.5 * scale + 0.2 * scale }, nodes = {
+                { n = G.UIT.T, config = { text = localize('bl_empty_slot'), scale = 0.3 * scale, colour = G.C.UI.TEXT_INACTIVE } } } },
+        { n = G.UIT.R, config = { align = 'cm', padding = 0.02 * scale }, nodes = {
             UIBox_button { id = 'bl_pick_' .. i, ref_table = { slot = i }, button = 'bl_pick_slot',
-                label = { localize(filled and 'bl_change' or 'bl_pick') }, minw = filled and 0.95 or 1.4, minh = 0.38, scale = 0.28, colour = G.C.BLUE, col = true },
+                label = { localize(filled and 'bl_change' or 'bl_pick') }, minw = (filled and 1.05 or 1.5) * scale, minh = bs, scale = 0.31 * scale, colour = G.C.BLUE, col = true },
             filled and UIBox_button { id = 'bl_clear_' .. i, ref_table = { slot = i }, button = 'bl_clear_slot',
-                label = { 'X' }, minw = 0.38, minh = 0.38, scale = 0.28, colour = G.C.RED, col = true } or nil,
+                label = { 'X' }, minw = bs, minh = bs, scale = 0.31 * scale, colour = G.C.RED, col = true } or nil,
         } },
     } }
 end
 
-local function summary_text(cfg)
+local function status_text(cfg)
+    local missing = RC.missing_slots(cfg)
+    if #missing > 0 then return localize('bl_missing_hint') .. ' ' .. table.concat(missing, ', '), G.C.RED end
+    if #RC.overflow_slots(cfg) > 0 then return localize('bl_overflow'), G.C.RED end
     local parts = {}
     for _, p in ipairs(RC.PARAMS) do
         if cfg.params[p] ~= nil then parts[#parts + 1] = localize('bl_param_' .. p) .. ' ' .. cfg.params[p] end
     end
-    local missing = RC.missing_slots(cfg)
-    if #missing > 0 then
-        return localize('bl_missing_hint') .. ' ' .. table.concat(missing, ', '), G.C.RED
+    if #parts > 0 then return table.concat(parts, '   ·   '), G.C.UI.TEXT_LIGHT end
+    for i = 1, RC.SLOTS do
+        local s = cfg.jokers[i]
+        if s and s.key and s.edition == 'e_negative' then return localize('bl_negative_tip'), G.C.UI.TEXT_INACTIVE end
     end
-    if #parts > 0 then return table.concat(parts, '  ·  '), G.C.UI.TEXT_LIGHT end
     return localize('bl_hint'), G.C.UI.TEXT_INACTIVE
 end
 
 --- ROOT node for the main panel (goes inside the 'bl_panel' O-node).
 function MP.root()
-    build_slot_areas()
-    local slots = {}
-    for i = 1, RC.SLOTS do slots[#slots + 1] = slot_column(i) end
+    local cfg = MP.config()
+    local n = RC.visible_slots(cfg)
+    local cap = RC.capacity(cfg)
+    local lay = layout_for(n)
+    build_slot_areas(n, lay.scale)
+
+    local rows = {}
+    for r = 1, lay.rows do
+        local cols = {}
+        for c = 1, lay.cols do
+            local i = (r - 1) * lay.cols + c
+            if i <= n then cols[#cols + 1] = slot_column(i, lay.scale, i > cap) end
+        end
+        rows[#rows + 1] = { n = G.UIT.R, config = { align = 'cm', padding = 0.02 }, nodes = cols }
+    end
     MP.populate_all()
 
-    local cfg = MP.config()
-    local text, colour = summary_text(cfg)
+    local text, colour = status_text(cfg)
+    local used = RC.filled_slots(cfg)
+    local subtitle = tostring(used) .. ' / ' .. tostring(cap) .. ' ' .. localize('bl_slots_used')
 
     return { n = G.UIT.ROOT, config = { align = 'cm', colour = G.C.CLEAR }, nodes = {
         { n = G.UIT.C, config = { align = 'cm', padding = 0.03 }, nodes = {
             MP.header(localize('bl_starting_jokers'), {
-                MP.small_button { id = 'bl_presets_open', button = 'bl_presets_open', label = localize('bl_presets'), colour = G.C.GREEN, minw = 1.4 },
-                MP.small_button { id = 'bl_advanced_open', button = 'bl_advanced_open', label = localize('bl_advanced'), colour = G.C.ORANGE, minw = 1.5 },
-                MP.small_button { id = 'bl_clear_all', button = 'bl_clear_all', label = localize('bl_clear_all'), colour = G.C.RED, minw = 1.3 },
-            }),
-            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, colour = G.C.BLACK, padding = 0.1, r = 0.1, emboss = 0.05 }, nodes = slots },
-            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.35 }, nodes = {
-                { n = G.UIT.T, config = { text = text, scale = 0.28, colour = colour } },
+                MP.button { id = 'bl_presets_open', button = 'bl_presets_open', label = localize('bl_presets'), colour = G.C.GREEN, minw = 1.6 },
+                MP.button { id = 'bl_advanced_open', button = 'bl_advanced_open', label = localize('bl_advanced'), colour = G.C.ORANGE, minw = 1.7 },
+                MP.button { id = 'bl_clear_all', button = 'bl_clear_all', label = localize('bl_clear_all'), colour = G.C.RED, minw = 1.5 },
+            }, subtitle),
+            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, colour = G.C.BLACK, padding = 0.1, r = 0.1, emboss = 0.05 }, nodes = {
+                { n = G.UIT.C, config = { align = 'cm' }, nodes = rows },
             } },
+            (lay.rows == 1) and { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.4 }, nodes = {
+                { n = G.UIT.T, config = { text = text, scale = 0.3, colour = colour } },
+            } } or nil,
         } },
     } }
 end
@@ -245,8 +283,8 @@ local function param_cycler(name)
         options = labels,
         current_option = idx,
         opt_callback = 'bl_cycle_param',
-        w = 1.6, h = 0.55, scale = 0.8, text_scale = 0.42,
-        colour = G.C.RED,
+        w = 2.0, h = 0.6, scale = 0.9, text_scale = 0.45,
+        colour = current and G.C.ORANGE or G.C.RED,
         no_pips = true,
     }
 end
@@ -258,21 +296,18 @@ function MP.advanced_root()
         local cols = {}
         for c = 1, per_row do
             local p = RC.PARAMS[(r - 1) * per_row + c]
-            if p then cols[#cols + 1] = { n = G.UIT.C, config = { align = 'cm', padding = 0.08, minw = 2.8 }, nodes = { param_cycler(p) } } end
+            if p then cols[#cols + 1] = { n = G.UIT.C, config = { align = 'cm', padding = 0.1, minw = 3.6 }, nodes = { param_cycler(p) } } end
         end
-        rows[#rows + 1] = { n = G.UIT.R, config = { align = 'cm', padding = 0.05 }, nodes = cols }
+        rows[#rows + 1] = { n = G.UIT.R, config = { align = 'cm', padding = 0.08 }, nodes = cols }
     end
     return { n = G.UIT.ROOT, config = { align = 'cm', colour = G.C.CLEAR }, nodes = {
         { n = G.UIT.C, config = { align = 'cm', padding = 0.03 }, nodes = {
             MP.header(localize('bl_advanced_title'), {
-                MP.small_button { id = 'bl_params_reset', button = 'bl_params_reset', label = localize('bl_reset_auto'), colour = G.C.RED, minw = 1.6 },
-                MP.small_button { id = 'bl_advanced_back', button = 'bl_advanced_back', label = localize('b_back'), colour = G.C.ORANGE, minw = 1.3 },
-            }),
-            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 3.6, colour = G.C.BLACK, padding = 0.15, r = 0.1, emboss = 0.05 }, nodes = {
+                MP.button { id = 'bl_params_reset', button = 'bl_params_reset', label = localize('bl_reset_auto'), colour = G.C.RED, minw = 1.8 },
+                MP.button { id = 'bl_advanced_back', button = 'bl_advanced_back', label = localize('b_back'), colour = G.C.ORANGE, minw = 1.4 },
+            }, localize('bl_advanced_hint')),
+            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 4.2, colour = G.C.BLACK, padding = 0.15, r = 0.1, emboss = 0.05 }, nodes = {
                 { n = G.UIT.C, config = { align = 'cm' }, nodes = rows },
-            } },
-            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.35 }, nodes = {
-                { n = G.UIT.T, config = { text = localize('bl_advanced_hint'), scale = 0.28, colour = G.C.UI.TEXT_INACTIVE } },
             } },
         } },
     } }
@@ -306,11 +341,19 @@ G.FUNCS.bl_clear_all = function(e)
     MP.show_main()
 end
 
--- Edition cycler: update the config and re-shade the preview card in place.
+-- Edition cycler: update the config and re-shade the preview card in place. Switching to or from
+-- Negative changes the slot capacity, so the panel is rebuilt in that case.
 G.FUNCS.bl_cycle_edition = function(args)
     local i = args.cycle_config.bl_slot
+    local cfg = MP.config()
+    local before = cfg.jokers[i] and cfg.jokers[i].edition
     local edition = RC.EDITIONS[args.to_key] or 'e_base'
-    RC.set_edition(MP.config(), i, edition)
+    RC.set_edition(cfg, i, edition)
+    if (before == 'e_negative') ~= (edition == 'e_negative') then
+        play_sound('negative', 1.5, 0.3)
+        MP.show_main()
+        return
+    end
     local area = MP.areas[i]
     local card = area and area.cards and area.cards[1]
     if card then

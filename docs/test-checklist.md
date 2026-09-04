@@ -77,6 +77,13 @@ when its section is green.
 - [ ] Negative Jokers don't consume slots
 - [ ] Stickers correct (V1.x)
 
+## M9 — layout + dynamic slots
+- [ ] Build Lab page, picker, Advanced and Presets each fit above the nav bar with no overlap (deck preview + stake tower visible)
+- [ ] Header reads "N / 5 slots"; setting a slot to Negative opens a 6th slot (one row, slightly smaller cards); two Negatives → 7 slots in two rows
+- [ ] Advanced → Joker Slots 8 → panel shows 8 slots; back to Auto → extra empty slots vanish, filled ones beyond capacity turn red with the "Over the slot limit" line
+- [ ] Start a run with 5 Negatives + 5 more Jokers → all 10 present, 5 free Joker slots remain
+- [ ] Picker shows 12 cards per page (2×6); count text and page text update with search/filter
+
 ## M9 — polish / config
 - [ ] Mods → Build Lab → Config: two toggles render; toggling "Hide the Build Lab page" then reopening New Run skips page 3
 - [ ] "Impossible Jokers in shops" on → over ~10 shops with rerolls at least one Impossible Joker can appear; off → never

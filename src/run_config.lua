@@ -13,7 +13,11 @@
 BL.run_config = {}
 local RC = BL.run_config
 
-RC.SLOTS = 5
+-- Slots: 5 base (vanilla joker_slots), one more per Negative-edition Joker (they don't use a slot:
+-- card.lua:410-413), hard cap 10 so the panel stays readable. RC.SLOTS is the storage size.
+RC.BASE_SLOTS = 5
+RC.MAX_SLOTS = 10
+RC.SLOTS = RC.MAX_SLOTS
 
 -- Vanilla edition centre keys (../balatro-src/game.lua:658-662). 'e_base' = no edition.
 RC.EDITIONS = { 'e_base', 'e_foil', 'e_holo', 'e_polychrome', 'e_negative' }
@@ -107,6 +111,39 @@ function RC.set_edition(cfg, slot, edition)
     local s = cfg.jokers[slot]
     if not s then return end
     if edition == 'e_base' or not RC.EDITION_SET[edition or ''] then s.edition = nil else s.edition = edition end
+end
+
+--- How many Jokers this config can start with: joker_slots (or 5) + Negatives, capped.
+function RC.capacity(cfg)
+    local base = (cfg.params and cfg.params.joker_slots) or RC.BASE_SLOTS
+    local negatives = 0
+    for i = 1, RC.SLOTS do
+        local s = cfg.jokers[i]
+        if s and s.key and not s.missing and s.edition == 'e_negative' then negatives = negatives + 1 end
+    end
+    return math.max(1, math.min(RC.MAX_SLOTS, base + negatives))
+end
+
+--- Number of visible slots: at least 5, at most capacity (so an empty freed slot is offered).
+function RC.visible_slots(cfg)
+    local cap = RC.capacity(cfg)
+    local last_filled = 0
+    for i = 1, RC.SLOTS do
+        local s = cfg.jokers[i]
+        if s and s.key then last_filled = i end
+    end
+    return math.max(RC.BASE_SLOTS, cap, last_filled)
+end
+
+--- Filled slot indices beyond capacity (they will not be started).
+function RC.overflow_slots(cfg)
+    local cap = RC.capacity(cfg)
+    local out = {}
+    for i = cap + 1, RC.SLOTS do
+        local s = cfg.jokers[i]
+        if s and s.key and not s.missing then out[#out + 1] = i end
+    end
+    return out
 end
 
 function RC.filled_slots(cfg)

@@ -28,7 +28,8 @@ function INJ.to_challenge(cfg)
             ch.rules.modifiers[#ch.rules.modifiers + 1] = { id = p, value = cfg.params[p] }
         end
     end
-    for i = 1, RC.SLOTS do
+    -- Only slots within capacity start (5 + one per Negative, or the joker_slots override).
+    for i = 1, RC.capacity(cfg) do
         local s = cfg.jokers[i]
         if s and s.key and not s.missing then
             local j = { id = s.key }

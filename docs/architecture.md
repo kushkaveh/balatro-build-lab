@@ -54,6 +54,12 @@ Build Lab panel  ──edits──►  SMODS.RunSelect.Setup.choices.build_lab  
 The challenge table has no `id`, so `G.GAME.challenge` stays nil: unlocks, high scores and the restart
 button behave exactly as in a normal (or seeded) run.
 
+## Dynamic slots
+Negative Jokers don't occupy a Joker slot (card.lua:410-413), so the panel's capacity is
+`joker_slots (or 5) + number of Negative-edition slots`, capped at 10. Each Negative you set opens one more
+slot; up to 6 slots render in one row, 7–10 in two rows at reduced card scale. Filled slots beyond capacity
+(after removing a Negative) are outlined red and skipped by the injector.
+
 ## UI approach
 Everything is a `UIBox` tree built from vanilla helpers (`UIBox_button`, `create_option_cycle`,
 `create_toggle`, `create_text_input`) inside Steamodded's page ROOT. Sub-screens (picker, presets) swap

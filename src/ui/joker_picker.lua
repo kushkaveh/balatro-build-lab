@@ -1,6 +1,6 @@
 --- Joker picker: paged grid of real Joker cards from G.P_CENTER_POOLS.Joker with text search and a
 --- rarity filter. Replaces the main panel inside the Build Lab page (same UIBox swap as change_tab).
---- Cards are drawn at 0.8 scale (Card accepts any w/h — SMODS draws stake chips at 0.99, runselectpage.lua:180)
+--- Cards are drawn at 0.8 scale (2 rows x 6) (Card accepts any w/h — SMODS draws stake chips at 0.99, runselectpage.lua:180)
 --- so two rows fit the 5.95-unit height budget of the run-select page.
 --- Imitates the Collection (UI_definitions.lua:3535-3575, button_callbacks.lua:602-621) for the grid and
 --- SMODS' run-select cycler (run_select.lua:441-495) for the prev/next paging buttons.
@@ -11,7 +11,7 @@ BL.ui.joker_picker = PK
 local RC = BL.run_config
 local MP = BL.ui.main_panel
 
-PK.ROWS, PK.COLS = 2, 5
+PK.ROWS, PK.COLS = 2, 6
 PK.PER_PAGE = PK.ROWS * PK.COLS
 PK.SCALE = 0.8
 
@@ -156,17 +156,17 @@ function PK.root()
     return { n = G.UIT.ROOT, config = { align = 'cm', colour = G.C.CLEAR }, nodes = {
         { n = G.UIT.C, config = { align = 'cm', padding = 0.03 }, nodes = {
             -- header: Back | title | search | rarity
-            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.5, padding = 0.02 }, nodes = {
-                MP.small_button { id = 'bl_picker_back', button = 'bl_picker_back', label = localize('b_back'), colour = G.C.ORANGE, minw = 1.1 },
-                { n = G.UIT.C, config = { align = 'cm', minw = 1.5 }, nodes = {
-                    { n = G.UIT.T, config = { text = localize('bl_slot') .. ' ' .. PK.state.slot, scale = 0.38, colour = G.C.WHITE, shadow = true } },
+            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.6, padding = 0.03 }, nodes = {
+                MP.button { id = 'bl_picker_back', button = 'bl_picker_back', label = localize('b_back'), colour = G.C.ORANGE, minw = 1.3 },
+                { n = G.UIT.C, config = { align = 'cm', minw = 2.2 }, nodes = {
+                    { n = G.UIT.T, config = { text = localize('bl_slot') .. ' ' .. PK.state.slot, scale = 0.46, colour = G.C.WHITE, shadow = true } },
                 } },
-                { n = G.UIT.C, config = { align = 'cm', padding = 0.02, func = 'bl_picker_poll' }, nodes = {
-                    create_text_input { w = 2.6, h = 0.5, text_scale = 0.35, max_length = 20, prompt_text = localize('bl_search'), ref_table = PK.state, ref_value = 'query', colour = G.C.BLUE },
+                { n = G.UIT.C, config = { align = 'cm', padding = 0.03, func = 'bl_picker_poll' }, nodes = {
+                    create_text_input { w = 3.4, h = 0.55, text_scale = 0.4, max_length = 20, prompt_text = localize('bl_search'), ref_table = PK.state, ref_value = 'query', colour = G.C.BLUE },
                 } },
                 { n = G.UIT.C, config = { align = 'cm' }, nodes = {
                     create_option_cycle { options = rarity_labels, current_option = PK.state.rarity, opt_callback = 'bl_picker_rarity',
-                        w = 2.2, h = 0.5, scale = 0.7, text_scale = 0.36, colour = G.C.RED, no_pips = true },
+                        w = 2.6, h = 0.55, scale = 0.8, text_scale = 0.4, colour = G.C.RED, no_pips = true },
                 } },
             } },
             -- grid
@@ -174,16 +174,16 @@ function PK.root()
                 { n = G.UIT.C, config = { align = 'cm' }, nodes = rows },
             } },
             -- footer: count | < page >
-            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.45, padding = 0.02 }, nodes = {
-                { n = G.UIT.C, config = { align = 'cl', minw = 3.2 }, nodes = {
-                    { n = G.UIT.T, config = { ref_table = PK.state, ref_value = 'count_text', scale = 0.3, colour = G.C.UI.TEXT_INACTIVE } },
+            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.5, padding = 0.02 }, nodes = {
+                { n = G.UIT.C, config = { align = 'cl', minw = 4.2 }, nodes = {
+                    { n = G.UIT.T, config = { ref_table = PK.state, ref_value = 'count_text', scale = 0.34, colour = G.C.UI.TEXT_INACTIVE } },
                 } },
-                { n = G.UIT.C, config = { align = 'cr', minw = MP.PANEL_W - 3.2 }, nodes = {
-                    UIBox_button { id = 'bl_picker_prev', button = 'bl_picker_prev', label = { '<' }, minw = 0.5, minh = 0.42, scale = 0.35, colour = G.C.RED, col = true },
-                    { n = G.UIT.C, config = { align = 'cm', minw = 1.8 }, nodes = {
-                        { n = G.UIT.T, config = { ref_table = PK.state, ref_value = 'page_text', scale = 0.34, colour = G.C.WHITE, shadow = true } },
+                { n = G.UIT.C, config = { align = 'cr', minw = MP.PANEL_W - 4.2 }, nodes = {
+                    UIBox_button { id = 'bl_picker_prev', button = 'bl_picker_prev', label = { '<' }, minw = 0.6, minh = 0.48, scale = 0.4, colour = G.C.RED, col = true },
+                    { n = G.UIT.C, config = { align = 'cm', minw = 2.0 }, nodes = {
+                        { n = G.UIT.T, config = { ref_table = PK.state, ref_value = 'page_text', scale = 0.38, colour = G.C.WHITE, shadow = true } },
                     } },
-                    UIBox_button { id = 'bl_picker_next', button = 'bl_picker_next', label = { '>' }, minw = 0.5, minh = 0.42, scale = 0.35, colour = G.C.RED, col = true },
+                    UIBox_button { id = 'bl_picker_next', button = 'bl_picker_next', label = { '>' }, minw = 0.6, minh = 0.48, scale = 0.4, colour = G.C.RED, col = true },
                 } },
             } },
         } },
