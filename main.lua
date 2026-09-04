@@ -7,7 +7,7 @@
 --- (verified: ../reference-mods/smods/src/preflight/loader.lua:873-895).
 
 BL = BL or {}
-BL.VERSION = '1.0.0'
+BL.VERSION = '1.1.0'
 BL.mod = SMODS.current_mod
 -- mod.config is the merged config.lua + saved config (verified: smods/src/ui.lua:1656-1685, loader.lua:782)
 BL.config = SMODS.current_mod.config or {}
@@ -40,5 +40,10 @@ run_module('impossible/jokers/fun_hoe.lua')
 run_module('impossible/jokers/bambino.lua')
 run_module('impossible/jokers/jazzy_clown.lua')
 run_module('impossible/jokers/forger.lua')
+run_module('impossible/jokers/saving_face.lua')
+-- next: run_module('impossible/jokers/velvet_rope.lua')
+-- next: run_module('impossible/jokers/the_smelter.lua')
+-- next: run_module('impossible/jokers/the_dude.lua')
+-- next: run_module('impossible/jokers/the_singularity.lua')
 
 sendInfoMessage('Build Lab v' .. BL.VERSION .. ' loaded', 'BuildLab')

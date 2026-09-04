@@ -99,6 +99,18 @@ when its section is green.
 - [ ] Understudy at row edges; Understudy×2 adjacent; Understudy next to a Blueprint chain
 - [ ] Forger + Midas Mask; Forger save/reload mid-round (no double stamp)
 
+## Wave 2 Impossible Jokers (v1.1)
+- [ ] Saving Face alone: play a hand with a Glass face card that shatters → 3 Aces appear in the deck (check deck view), "Aces!" message
+- [ ] Saving Face + Fun Hoe + Pareidolia over 10 hands: every scored card is harvested, 3 Aces per card, no crash, deck view shows the Aces with mixed enhancements
+- [ ] Saving Face + Blueprint: shatter one face → 6 Aces
+- [ ] Velvet Rope: selecting each Blind creates a Negative Rare Joker; with Bambino the new Joker can be converted; Showman duplicates allowed
+- [ ] Velvet Rope at the cap: with 30 Jokers held, selecting a Blind creates nothing and no error is logged
+- [ ] The Smelter: play an enhanced card → enhancement removed, "+15 Mult" and tooltip total grows; Smelter + Forger over 5 hands: Forger re-stamps after each melt (Mult keeps climbing)
+- [ ] The Smelter + Blueprint: the copy adds the current Mult but melts nothing
+- [ ] The Dude: end a round with 0 hands and 0 discards left → no gain; end with all hands+discards unused (e.g. win on first hand with 3 hands, 3 discards) → +X1.8; with a hand/discard voucher the extra counts too
+- [ ] The Singularity: sell a Joker → +X0.4; sell a consumable → +X0.4; USE a consumable → no gain; Eternal Joker can't be sold → no trigger; Singularity itself sold → no trigger; Singularity + adjacent Blueprint → exactly one gain per sale
+- [ ] Velvet Rope → Singularity loop over 3 antes: sell each free Negative Rare, XMult climbs by 0.4 per sale
+
 ## Presets (M7)
 - [ ] Presets button opens the list in place; built-ins Facepocalypse and Baron Machine listed in orange with mini cards
 - [ ] Type a name, "Save current as" → row appears; `presets.json` written in the mod folder

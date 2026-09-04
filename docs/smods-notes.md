@@ -173,3 +173,19 @@ Not yet verified — do not call until a row above exists:
 | `mod.config_tab` | `SMODS.current_mod.config_tab = function() return <ROOT node> end`; shown as a "Config" tab in the Mods menu; `mod.config` saved by `SMODS.save_all_config()` on leaving the Mods menu / restart keybind | `smods/src/ui.lua:555-565, 1697-1720`; Cryptid `Cryptid.lua:358-469, 543-544` (GPL-3.0) | `src/ui/buildlab_tab.lua` |
 | `create_toggle{info={...}}` | extra caption lines under a toggle | `UI_definitions.lua:1919-1928` | config tab |
 | Rarity `get_weight` runtime | called every `SMODS.poll_rarity`, so a config toggle changes shop odds without restart | `smods/src/utils.lua:876-918` | `impossible/rarity.lua` |
+
+## v1.1 — wave-2 Jokers (verified 2026-09-04)
+
+| API / context | Exact behaviour | Source | Used in |
+|---|---|---|---|
+| `context.remove_playing_cards` | `{remove_playing_cards=true, removed={cards}, scoring_hand?}` after scoring destruction, discard destruction and `SMODS.destroy_cards` | `smods/lovely/better_calc.toml:717-764`; `smods/src/utils.lua:3064` | saving_face |
+| `Card:is_face(from_boss)` with `true` | ignores debuff; true for J/Q/K or with Pareidolia | `../balatro-src/card.lua:964-970` | saving_face |
+| `SMODS.add_card{set='Enhanced', enhancement, rank='Ace', area=G.deck}` | suit randomised when omitted (`pseudorandom_element(SMODS.Suits, ...)`), rank via `SMODS.Ranks['Ace'].card_key` | `smods/src/utils.lua:395-409, 4505-4526` | saving_face |
+| `context.setting_blind` | `{setting_blind=true, blind=G.GAME.round_resets.blind}` once per blind selection | `better_calc.toml:990-1005` | velvet_rope |
+| `create_card(..., _rarity, ...)` rarity argument | integer `1..4` for vanilla rarities (`rarity_pools[3]` = Rare) or a custom rarity key; `SMODS.add_card{rarity=3}` passes it through | `smods/lovely/pool.toml:77-85`; `game_object.lua:1058-1075`; `utils.lua:876-919` | velvet_rope |
+| `context.individual` on a Joker | `{individual=true, other_card=<scored card>, cardarea=G.play}` fires during scoring, before `after` | `smods/src/utils.lua:2230-2240`; `better_calc.toml:810` | the_smelter |
+| `G.GAME.current_round.hands_left` / `discards_left` | remaining hands / discards this round (read by Dusk, Acrobat, Delayed Gratification) | `../balatro-src/card.lua:1675, 3360, 3688` | the_dude |
+| `context.selling_card` | `{selling_card=true, card=<sold card>}` to every Joker except the sold one, for Jokers and consumables (G.FUNCS.sell_card) | `better_calc.toml:1254-1269`; vanilla `card.lua:2395` | the_singularity |
+| `context.joker_type_destroyed` | `{joker_type_destroyed=true, card=<card>, shatters?}` when a non-playing card is destroyed via `start_dissolve` / `shatter` / `SMODS.pinch_and_remove`; return `{no_destroy=true}` to save it | `better_calc.toml:1922-1950`; `smods/src/utils.lua:3005-3010` | the_singularity |
+| `context.using_consumeable` | `{using_consumeable=true, consumeable=<card>}` — NOT a sale/destruction | vanilla `card.lua:2708` | the_singularity (excluded) |
+| `card.sort_id` | unique per Card instance | `../balatro-src/card.lua:24-25` | the_singularity (dedupe) |

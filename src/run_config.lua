@@ -14,9 +14,9 @@ BL.run_config = {}
 local RC = BL.run_config
 
 -- Slots: 5 base (vanilla joker_slots), one more per Negative-edition Joker (they don't use a slot:
--- card.lua:410-413), hard cap 10 so the panel stays readable. RC.SLOTS is the storage size.
+-- card.lua:410-413), hard cap 20 (paged 5 per page). RC.SLOTS is the storage size.
 RC.BASE_SLOTS = 5
-RC.MAX_SLOTS = 10
+RC.MAX_SLOTS = 20
 RC.SLOTS = RC.MAX_SLOTS
 
 -- Vanilla edition centre keys (../balatro-src/game.lua:658-662). 'e_base' = no edition.

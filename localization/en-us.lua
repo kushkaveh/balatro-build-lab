@@ -43,6 +43,15 @@ return {
                     '{C:attention}directly left and right{} of this card',
                 },
             },
+            j_bl_saving_face = {
+                name = 'Saving Face',
+                text = {
+                    'When a {C:attention}face card{} is destroyed,',
+                    'create {C:attention}#1#{} random-suit {C:attention}Aces{}',
+                    'with random enhancements in your deck',
+                    '{C:inactive}Every face erased, an ace takes its place',
+                },
+            },
             j_bl_forger = {
                 name = 'The Forger',
                 text = {
@@ -106,6 +115,7 @@ return {
             bl_zoomies = 'Zoomies!',
             bl_new_trick = 'New trick!',
             bl_forged = 'Forged!',
+            bl_ace_place = 'Aces!',
             -- config tab
             bl_cfg_allow_in_shop = 'Impossible Jokers in shops',
             bl_cfg_allow_in_shop_info = 'Rare (about 0.1%). Off means Build Lab only.',
