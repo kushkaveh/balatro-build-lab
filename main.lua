@@ -7,7 +7,7 @@
 --- (verified: ../reference-mods/smods/src/preflight/loader.lua:873-895).
 
 BL = BL or {}
-BL.VERSION = '0.7.0'
+BL.VERSION = '0.8.0'
 BL.mod = SMODS.current_mod
 -- mod.config is the merged config.lua + saved config (verified: smods/src/ui.lua:1656-1685, loader.lua:782)
 BL.config = SMODS.current_mod.config or {}
@@ -36,9 +36,9 @@ run_module('src/ui/presets_modal.lua')
 -- Content pack (works standalone)
 run_module('impossible/rarity.lua')
 run_module('impossible/jokers/understudy.lua')
--- M8+  run_module('impossible/jokers/fun_hoe.lua')
--- M8+  run_module('impossible/jokers/bambino.lua')
--- M8+  run_module('impossible/jokers/jazzy_clown.lua')
--- M8+  run_module('impossible/jokers/forger.lua')
+run_module('impossible/jokers/fun_hoe.lua')
+run_module('impossible/jokers/bambino.lua')
+run_module('impossible/jokers/jazzy_clown.lua')
+run_module('impossible/jokers/forger.lua')
 
 sendInfoMessage('Build Lab v' .. BL.VERSION .. ' loaded', 'BuildLab')
