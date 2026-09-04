@@ -79,7 +79,7 @@ when its section is green.
 
 ## M9 — layout + dynamic slots
 - [ ] Build Lab page, picker, Advanced and Presets each fit above the nav bar with no overlap (deck preview + stake tower visible)
-- [ ] Header reads "N / 5 slots"; setting a slot to Negative opens a 6th slot (one row, slightly smaller cards); two Negatives → 7 slots in two rows
+- [ ] Header reads "N / 5 Joker slots"; setting a slot to Negative opens a 6th slot on page 2: < > arrows appear, the > arrow is green and the status line says a free slot is waiting
 - [ ] Advanced → Joker Slots 8 → panel shows 8 slots; back to Auto → extra empty slots vanish, filled ones beyond capacity turn red with the "Over the slot limit" line
 - [ ] Start a run with 5 Negatives + 5 more Jokers → all 10 present, 5 free Joker slots remain
 - [ ] Picker shows 12 cards per page (2×6); count text and page text update with search/filter

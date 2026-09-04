@@ -57,8 +57,9 @@ button behave exactly as in a normal (or seeded) run.
 ## Dynamic slots
 Negative Jokers don't occupy a Joker slot (card.lua:410-413), so the panel's capacity is
 `joker_slots (or 5) + number of Negative-edition slots`, capped at 10. Each Negative you set opens one more
-slot; up to 6 slots render in one row, 7–10 in two rows at reduced card scale. Filled slots beyond capacity
-(after removing a Negative) are outlined red and skipped by the injector.
+slot. The panel always shows one row of five full-size slots; extra slots live on further pages reached with
+< > arrows (Collection-style paging), and the status line points at free slots on other pages. Filled slots
+beyond capacity (after removing a Negative) are outlined red and skipped by the injector.
 
 ## UI approach
 Everything is a `UIBox` tree built from vanilla helpers (`UIBox_button`, `create_option_cycle`,

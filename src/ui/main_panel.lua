@@ -1,7 +1,8 @@
 --- Build Lab main panel: Joker slots rendered as real Cards in CardAreas, an edition cycler under each
 --- slot (live shader preview), a header (Presets / Advanced / Clear) and a one-line status.
 --- Slots are dynamic: 5 base, +1 per Negative-edition Joker (Negatives don't use a slot, card.lua:410-413),
---- or the Joker Slots override, capped at 10. Up to 6 slots = one row; 7-10 = two rows at reduced scale.
+--- or the Joker Slots override, capped at 10. Always ONE row of five full-size slots; more slots are reached
+--- with < > page arrows, exactly like the Collection pages (UI_definitions.lua:3552-3573).
 --- Height budget: everything must stay under the SMODS deck-preview column (5.95 units,
 --- run_select.lua:565) so the page never pushes the nav bar (screen is 11.5 units, globals.lua:272).
 --- Imitates SMODS' run-select selection grid (src/utils/run_select.lua:376-439, black rounded box) and the
@@ -18,9 +19,11 @@ BL.ui.main_panel = MP
 local RC = BL.run_config
 
 MP.PANEL_W = 11.4
-MP.areas = {}
+MP.PER_PAGE = 5
+MP.areas = {}      -- indexed by slot number (only the visible page is built)
 MP.scale = 1
 MP.modal_open = false
+MP.state = { page = 1 }
 
 -- Edition labels from vanilla misc.labels (en-us.lua:3820-3830).
 local EDITION_LABEL_KEYS = { e_foil = 'foil', e_holo = 'holographic', e_polychrome = 'polychrome', e_negative = 'negative' }
@@ -58,7 +61,7 @@ end
 --- Remove slot cards and unregister our CardAreas (same scrub SMODS does in build_selection_areas,
 --- run_select.lua:380-389). Safe to call when the UIBox already removed them.
 function MP.cleanup()
-    for _, area in ipairs(MP.areas) do
+    for _, area in pairs(MP.areas) do
         if area.cards then
             remove_all(area.cards)
             area.cards = {}
@@ -71,21 +74,25 @@ function MP.cleanup()
     MP.modal_open = false
 end
 
---- Layout for n visible slots: columns per row and card scale.
-local function layout_for(n)
-    if n <= 5 then return { rows = 1, cols = n, scale = 1.0 } end
-    if n == 6 then return { rows = 1, cols = 6, scale = 0.84 } end
-    return { rows = 2, cols = math.ceil(n / 2), scale = 0.64 }
+--- Slot page bookkeeping: total visible slots, page count, and the slot range on the current page.
+function MP.pages()
+    local cfg = MP.config()
+    local n = RC.visible_slots(cfg)
+    local pages = math.max(1, math.ceil(n / MP.PER_PAGE))
+    if MP.state.page > pages then MP.state.page = pages end
+    if MP.state.page < 1 then MP.state.page = 1 end
+    local first = (MP.state.page - 1) * MP.PER_PAGE + 1
+    local last = math.min(n, first + MP.PER_PAGE - 1)
+    return n, pages, first, last
 end
 
-local function build_slot_areas(n, scale)
+local function build_slot_areas(first, last)
     MP.cleanup()
-    MP.scale = scale
-    local w, h = G.CARD_W * scale, G.CARD_H * scale
-    for i = 1, n do
+    MP.scale = 1
+    for i = first, last do
         -- CardArea(X, Y, W, H, config): cardarea.lua:5-30; 'title' areas draw no background (cardarea.lua:276)
-        MP.areas[i] = CardArea(G.ROOM.T.w, G.ROOM.T.h, w, h,
-            { card_limit = 1, type = 'title', highlight_limit = 0, card_w = w, bl_slot = i })
+        MP.areas[i] = CardArea(G.ROOM.T.w, G.ROOM.T.h, G.CARD_W, G.CARD_H,
+            { card_limit = 1, type = 'title', highlight_limit = 0, bl_slot = i })
     end
 end
 
@@ -108,7 +115,7 @@ function MP.populate_slot(i)
 end
 
 function MP.populate_all()
-    for i = 1, #MP.areas do MP.populate_slot(i) end
+    for i, _ in pairs(MP.areas) do MP.populate_slot(i) end
 end
 
 --- Swap the panel content (main panel <-> picker / presets / advanced). def_fn returns a ROOT node.
@@ -138,7 +145,7 @@ function MP.header(title, right_nodes, subtitle)
                 { n = G.UIT.T, config = { text = title, scale = 0.5, colour = G.C.WHITE, shadow = true } },
             } },
             subtitle and { n = G.UIT.R, config = { align = 'cl' }, nodes = {
-                { n = G.UIT.T, config = { text = subtitle, scale = 0.27, colour = G.C.UI.TEXT_INACTIVE } },
+                { n = G.UIT.T, config = { text = subtitle, scale = 0.3, colour = G.C.UI.TEXT_LIGHT } },
             } } or nil,
         } },
         { n = G.UIT.C, config = { align = 'cr', minw = MP.PANEL_W - 4.2, padding = 0.03 }, nodes = right_nodes or {} },
@@ -165,7 +172,7 @@ local function edition_cycler(i, scale)
         options = labels,
         current_option = edition_index(slot and slot.edition or 'e_base'),
         opt_callback = 'bl_cycle_edition',
-        w = 1.15 * scale, h = 0.5 * scale, scale = 0.7 * scale, text_scale = 0.42 * scale,
+        w = 1.3 * scale, h = 0.5 * scale, scale = 0.7 * scale, text_scale = 0.4 * scale,
         colour = (slot and slot.edition == 'e_negative') and G.C.DARK_EDITION or G.C.RED,
         no_pips = true,
     }
@@ -193,10 +200,19 @@ local function slot_column(i, scale, over_cap)
     } }
 end
 
-local function status_text(cfg)
+local function empty_slots_beyond(cfg, last, n)
+    for i = last + 1, n do
+        local s = cfg.jokers[i]
+        if not (s and s.key) then return true end
+    end
+    return false
+end
+
+local function status_text(cfg, n, pages, last)
     local missing = RC.missing_slots(cfg)
     if #missing > 0 then return localize('bl_missing_hint') .. ' ' .. table.concat(missing, ', '), G.C.RED end
     if #RC.overflow_slots(cfg) > 0 then return localize('bl_overflow'), G.C.RED end
+    if pages > 1 and empty_slots_beyond(cfg, last, n) then return localize('bl_more_slots'), G.C.GREEN end
     local parts = {}
     for _, p in ipairs(RC.PARAMS) do
         if cfg.params[p] ~= nil then parts[#parts + 1] = localize('bl_param_' .. p) .. ' ' .. cfg.params[p] end
@@ -210,27 +226,35 @@ local function status_text(cfg)
 end
 
 --- ROOT node for the main panel (goes inside the 'bl_panel' O-node).
+local function page_arrow(dir, enabled, highlight)
+    return { n = G.UIT.C, config = { align = 'cm', minw = 0.6, padding = 0.05 }, nodes = {
+        enabled and UIBox_button { id = dir < 0 and 'bl_slots_prev' or 'bl_slots_next', button = dir < 0 and 'bl_slots_prev' or 'bl_slots_next',
+            label = { dir < 0 and '<' or '>' }, minw = 0.5, minh = 1.6, scale = 0.5, colour = highlight and G.C.GREEN or G.C.RED, col = true } or nil,
+    } }
+end
+
 function MP.root()
     local cfg = MP.config()
-    local n = RC.visible_slots(cfg)
+    local n, pages, first, last = MP.pages()
     local cap = RC.capacity(cfg)
-    local lay = layout_for(n)
-    build_slot_areas(n, lay.scale)
+    build_slot_areas(first, last)
 
-    local rows = {}
-    for r = 1, lay.rows do
-        local cols = {}
-        for c = 1, lay.cols do
-            local i = (r - 1) * lay.cols + c
-            if i <= n then cols[#cols + 1] = slot_column(i, lay.scale, i > cap) end
-        end
-        rows[#rows + 1] = { n = G.UIT.R, config = { align = 'cm', padding = 0.02 }, nodes = cols }
-    end
+    local cols = {}
+    for i = first, last do cols[#cols + 1] = slot_column(i, 1, i > cap) end
     MP.populate_all()
 
-    local text, colour = status_text(cfg)
+    local text, colour = status_text(cfg, n, pages, last)
     local used = RC.filled_slots(cfg)
     local subtitle = tostring(used) .. ' / ' .. tostring(cap) .. ' ' .. localize('bl_slots_used')
+    if pages > 1 then
+        subtitle = subtitle .. '   ·   ' .. localize('bl_slots') .. ' ' .. first .. '-' .. last .. ' ' .. localize('bl_of') .. ' ' .. n
+    end
+    local more_ahead = pages > 1 and empty_slots_beyond(cfg, last, n)
+    local rows = { { n = G.UIT.R, config = { align = 'cm', padding = 0.02 }, nodes = {
+        page_arrow(-1, pages > 1, false),
+        { n = G.UIT.C, config = { align = 'cm', minw = MP.PER_PAGE * (G.CARD_W + 0.35) }, nodes = cols },
+        page_arrow(1, pages > 1, more_ahead),
+    } } }
 
     return { n = G.UIT.ROOT, config = { align = 'cm', colour = G.C.CLEAR }, nodes = {
         { n = G.UIT.C, config = { align = 'cm', padding = 0.03 }, nodes = {
@@ -242,9 +266,9 @@ function MP.root()
             { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, colour = G.C.BLACK, padding = 0.1, r = 0.1, emboss = 0.05 }, nodes = {
                 { n = G.UIT.C, config = { align = 'cm' }, nodes = rows },
             } },
-            (lay.rows == 1) and { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.4 }, nodes = {
+            { n = G.UIT.R, config = { align = 'cm', minw = MP.PANEL_W, minh = 0.4 }, nodes = {
                 { n = G.UIT.T, config = { text = text, scale = 0.3, colour = colour } },
-            } } or nil,
+            } },
         } },
     } }
 end
@@ -337,7 +361,24 @@ end
 G.FUNCS.bl_clear_all = function(e)
     local cfg = MP.config()
     for i = 1, RC.SLOTS do RC.set_joker(cfg, i, nil) end
+    MP.state.page = 1
     play_sound('cardSlide1', nil, 0.4)
+    MP.show_main()
+end
+
+G.FUNCS.bl_slots_prev = function(e)
+    local _, pages = MP.pages()
+    MP.state.page = MP.state.page - 1
+    if MP.state.page < 1 then MP.state.page = pages end
+    play_sound('cardSlide1', nil, 0.3)
+    MP.show_main()
+end
+
+G.FUNCS.bl_slots_next = function(e)
+    local _, pages = MP.pages()
+    MP.state.page = MP.state.page + 1
+    if MP.state.page > pages then MP.state.page = 1 end
+    play_sound('cardSlide1', nil, 0.3)
     MP.show_main()
 end
 
