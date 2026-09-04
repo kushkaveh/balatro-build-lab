@@ -189,3 +189,7 @@ Not yet verified — do not call until a row above exists:
 | `context.joker_type_destroyed` | `{joker_type_destroyed=true, card=<card>, shatters?}` when a non-playing card is destroyed via `start_dissolve` / `shatter` / `SMODS.pinch_and_remove`; return `{no_destroy=true}` to save it | `better_calc.toml:1922-1950`; `smods/src/utils.lua:3005-3010` | the_singularity |
 | `context.using_consumeable` | `{using_consumeable=true, consumeable=<card>}` — NOT a sale/destruction | vanilla `card.lua:2708` | the_singularity (excluded) |
 | `card.sort_id` | unique per Card instance | `../balatro-src/card.lua:24-25` | the_singularity (dedupe) |
+| `SMODS.is_playing_card(card)` | true for playing cards (`card.playing_card` or set Default/Enhanced) | `smods/src/utils.lua:2999-3003` | the_singularity |
+| `SMODS.ConsumableTypes[set]` | registry of consumable sets (Tarot, Planet, Spectral, modded) | `smods/src/utils.lua:392` (usage), `game_object.lua:1239` | the_singularity |
+| `card.ability.consumeable` | vanilla flag on consumable cards | `../balatro-src/card.lua:410-413` (usage) | the_singularity |
+| `G.P_CENTERS.c_base` | plain playing-card centre | `misc_functions.lua:1627` | the_smelter |

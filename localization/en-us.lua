@@ -52,6 +52,42 @@ return {
                     '{C:inactive}Every face erased, an ace takes its place',
                 },
             },
+            j_bl_velvet_rope = {
+                name = 'Velvet Rope',
+                text = {
+                    'When a {C:attention}Blind{} is selected,',
+                    'create a random {C:green}Rare{} Joker',
+                    'with {C:dark_edition}Negative{} edition',
+                    '{C:inactive}(Stops at #1# Jokers)',
+                },
+            },
+            j_bl_the_smelter = {
+                name = 'The Smelter',
+                text = {
+                    'Scored cards with an {C:attention}enhancement{}',
+                    'lose it; this Joker gains',
+                    '{C:mult}+#1#{} Mult for each melt',
+                    '{C:inactive}(Currently {C:mult}+#2#{C:inactive} Mult, #3# melted)',
+                },
+            },
+            j_bl_the_dude = {
+                name = 'The Dude',
+                text = {
+                    'At end of round, gains {X:mult,C:white} X#1# {} Mult',
+                    'for each unused {C:blue}hand{} and {C:red}discard{}',
+                    '{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult)',
+                    '{C:inactive}The Dude abides',
+                },
+            },
+            j_bl_the_singularity = {
+                name = 'The Singularity',
+                text = {
+                    'When a {C:attention}Joker{} or {C:attention}consumable{}',
+                    'is sold or destroyed, this Joker',
+                    'gains {X:mult,C:white} X#1# {} Mult',
+                    '{C:inactive}(Currently {X:mult,C:white} X#2# {C:inactive} Mult, #3# absorbed)',
+                },
+            },
             j_bl_forger = {
                 name = 'The Forger',
                 text = {
@@ -116,6 +152,8 @@ return {
             bl_new_trick = 'New trick!',
             bl_forged = 'Forged!',
             bl_ace_place = 'Aces!',
+            bl_velvet = 'Welcome in!',
+            bl_melted = 'Melted!',
             -- config tab
             bl_cfg_allow_in_shop = 'Impossible Jokers in shops',
             bl_cfg_allow_in_shop_info = 'Rare (about 0.1%). Off means Build Lab only.',
