@@ -94,6 +94,11 @@ return {
             bl_zoomies = 'Zoomies!',
             bl_new_trick = 'New trick!',
             bl_forged = 'Forged!',
+            -- config tab
+            bl_cfg_allow_in_shop = 'Impossible Jokers in shops',
+            bl_cfg_allow_in_shop_info = 'Tiny weight (0.1%). Off = Build Lab only.',
+            bl_cfg_disable_builder = 'Hide the Build Lab page',
+            bl_cfg_disable_builder_info = 'The Impossible Jokers still load. Takes effect on next run setup.',
         },
         labels = {
             k_bl_impossible = 'Impossible',

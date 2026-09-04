@@ -47,3 +47,28 @@ SMODS.RunSelectPage {
         return BL.ui.main_panel.page_node()
     end,
 }
+
+------------------------------------------------------------------------------------------------
+-- Mods menu > Build Lab > Config tab.
+-- SMODS renders mod.config_tab() as a tab (smods/src/ui.lua:555-565) and persists mod.config when
+-- the Mods menu closes (SMODS.save_all_config, ui.lua:1697-1720). Toggle pattern from Cryptid
+-- Cryptid.lua:413-419 (GPL-3.0). shop_weight is fixed in config.lua (0.001) and applied by the
+-- rarity's get_weight when allow_in_shop is on.
+------------------------------------------------------------------------------------------------
+BL.mod.config_tab = function()
+    return { n = G.UIT.ROOT, config = { align = 'cm', padding = 0.05, colour = G.C.CLEAR }, nodes = {
+        { n = G.UIT.C, config = { align = 'cm', padding = 0.1 }, nodes = {
+            { n = G.UIT.R, config = { align = 'cm', padding = 0.05 }, nodes = {
+                create_toggle { label = localize('bl_cfg_allow_in_shop'), ref_table = BL.config, ref_value = 'allow_in_shop',
+                    w = 4.5, scale = 0.8, label_scale = 0.35, info = { localize('bl_cfg_allow_in_shop_info') } },
+            } },
+            { n = G.UIT.R, config = { align = 'cm', padding = 0.05 }, nodes = {
+                create_toggle { label = localize('bl_cfg_disable_builder'), ref_table = BL.config, ref_value = 'disable_builder',
+                    w = 4.5, scale = 0.8, label_scale = 0.35, info = { localize('bl_cfg_disable_builder_info') } },
+            } },
+            { n = G.UIT.R, config = { align = 'cm', padding = 0.1 }, nodes = {
+                { n = G.UIT.T, config = { text = 'Build Lab v' .. BL.VERSION, scale = 0.3, colour = G.C.UI.TEXT_INACTIVE } },
+            } },
+        } },
+    } }
+end

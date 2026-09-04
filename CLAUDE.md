@@ -29,7 +29,8 @@ Read this before writing anything. Product plan: `build-lab-technical-product-pl
 6. If Balatro/SMODS updates break the mod: `git log docs/smods-notes.md` to see which APIs we depend on,
    re-verify each against the new source, fix `src/hooks.lua` first.
 7. Never copy code from DebugPlus (MPL-2.0) or ZokersModMenu (unlicensed). Ideas only.
-8. Placeholder art until the owner supplies final art: labeled solid-colour 71×95 sprites in the atlas.
+8. Art: the owner's `joker-design-*.png` files are the source of truth; regenerate the atlas with
+   `python tools/build_atlas.py` (never hand-edit `assets/`). Column order = `pos.x` in the Joker files.
 
 ## Environment (this machine, verified 2026-09-04)
 
@@ -48,6 +49,14 @@ Read this before writing anything. Product plan: `build-lab-technical-product-pl
 | Vanilla source | `K:\Projects\balatro-src\` (extracted from the exe, read-only, not in git) |
 | Hot restart with mods | `Alt+F5` or hold `M` in-game |
 | Tools | git, gh (not logged in), Python 3.13 (used for zip extraction; no 7-Zip) |
+
+## Build state (2026-09-04)
+- M0–M9 implemented and committed (v1.0.0). Only M0/M1 were confirmed in-game; M2–M9 await the owner's
+  consolidated test pass against `docs/test-checklist.md`. Fix bugs from that pass before new features.
+- Build Lab is a `SMODS.RunSelectPage` (page 3 of Steamodded's run select), not a vanilla tab — see
+  `docs/architecture.md` "Deviation from the plan".
+- Tools: `python tools/luacheck.py .` (syntax check with the game's lua51.dll; run before every commit),
+  `python tools/build_atlas.py` (rebuild atlases from `joker-design-*.png`).
 
 ## Workflow per change
 1. Find the API in source → add a row to `docs/smods-notes.md` (signature, link, date).

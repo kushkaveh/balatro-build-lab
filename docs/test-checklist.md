@@ -77,6 +77,13 @@ when its section is green.
 - [ ] Negative Jokers don't consume slots
 - [ ] Stickers correct (V1.x)
 
+## M9 — polish / config
+- [ ] Mods → Build Lab → Config: two toggles render; toggling "Hide the Build Lab page" then reopening New Run skips page 3
+- [ ] "Impossible Jokers in shops" on → over ~10 shops with rerolls at least one Impossible Joker can appear; off → never
+- [ ] Config survives restart (`%AppData%/Balatro/config/BuildLab.jkr` written when leaving the Mods menu)
+- [ ] Mod list shows version 1.0.0
+- [ ] Controller: every panel button/cycler reachable with d-pad; picker cards focusable
+
 ## Impossible Jokers (M8)
 - [ ] Each alone; each + Blueprint; each + Brainstorm; each + Showman duplicates
 - [ ] Fun Hoe + Pareidolia: deck-drain over 10 hands, no crash on tiny deck

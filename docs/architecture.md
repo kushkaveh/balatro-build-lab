@@ -1,44 +1,77 @@
 # Build Lab — architecture (condensed, kept current)
 
 Full plan: [`../build-lab-technical-product-plan.md`](../build-lab-technical-product-plan.md).
+Where this document differs from the plan, this document is what was built (and why).
 
 ## One line
-A native-styled **Build Lab** page in the run-setup flow writes a plain Lua **RunConfig** table; a small
-hook applies it when the run starts; a self-contained content pack adds the **Impossible** rarity and five
-Jokers that work even if the builder UI is disabled.
+A **Build Lab** page in Steamodded's run-select flow writes a plain Lua **RunConfig**; a single hook on
+`Game:start_run` turns it into a vanilla challenge-shaped table at run start; a self-contained content pack
+adds the **Impossible** rarity and five Jokers that work even if the builder page is hidden.
 
 ## Stack
-Lovely v0.9.0 (runtime injector, `version.dll` next to `Balatro.exe`) → Steamodded 26.829.0 stable
-(mod loader + content API) → this mod in `%AppData%\Balatro\Mods\BuildLab` (a junction to this repo).
-No other hard dependency. Balatro 1.0.1o.
+Lovely v0.9.0 → Steamodded 26.829.0 (stable) → this mod at `%AppData%\Balatro\Mods\BuildLab` (a junction
+to this repo). Balatro 1.0.1o. No other hard dependency. Zero Lovely patches of our own.
 
-## Two loosely-coupled modules
-1. `src/` (+ `src/ui/`) — the Run Builder. UI, RunConfig model, run injection, presets. Knows nothing
-   about our Jokers; it lists whatever is in `G.P_CENTER_POOLS` (so modded Jokers appear for free).
-2. `impossible/` — the content pack. `SMODS.Rarity` + five `SMODS.Joker` files + atlas + localization.
+## Deviation from the plan: run-select page instead of a tab
+Steamodded 26.829.0 ships **Run Select Pages** (`SMODS.RunSelectPage`, `src/utils/run_select.lua`), the
+Galdur-derived system the plan predicted. Registering any page makes Steamodded replace the vanilla New Run
+tab with its paged flow: deck page → stake page → **Build Lab** (page 3) → Play. Consequences:
+- Deck and stake are chosen on Steamodded's own pages, so the Build Lab panel has no deck/stake cyclers.
+  Loading a preset writes `deck_choice` / `stake_choice` into `SMODS.RunSelect.Setup.choices` and refreshes
+  the built-in previews.
+- Seed uses Steamodded's nav-bar seed toggle, not a field of ours.
+- The Play button is Steamodded's. Our config travels as `SMODS.RunSelect.Setup.choices.build_lab`, which
+  Steamodded copies into the args of `G.FUNCS.start_run` → `Game:start_run(args)`, where `src/hooks.lua`
+  reads `args.build_lab`.
+- "Quick Start" repeats the last choices, Build Lab config included.
+
+## Modules
+```
+src/hooks.lua           ALL wraps of vanilla/SMODS functions: Game:start_run, G.FUNCS.exit_overlay_menu, Card:click
+src/run_config.lua      RunConfig model: new / sanitize / set_joker / set_edition; params nil = "Auto"
+src/run_injector.lua    RunConfig -> challenge table {rules.modifiers, jokers={id, edition, eternal, pinned}}
+src/presets.lua         presets.json (NFS + JSON), two built-ins, corrupt-file reset with backup
+src/ui/buildlab_tab.lua SMODS.RunSelectPage registration + Mods-menu config tab
+src/ui/main_panel.lua   five slot CardAreas, edition cyclers, Advanced params row, panel swapping
+src/ui/joker_picker.lua paged grid of real Joker cards, live search, rarity filter
+src/ui/presets_modal.lua list rows with mini cards, save/load/overwrite/delete
+impossible/rarity.lua   SMODS.Atlas + SMODS.Rarity 'bl_impossible' (weight 0; config can enable a tiny weight)
+impossible/jokers/*.lua one SMODS.Joker per file
+```
 
 ## Data flow
 ```
-Build Lab UI  →  RunConfig table  →  presets.lua (JSON on disk)
-                      │
-                      ▼
-      run_injector.lua: config → challenge-shaped ruleset handed to the vanilla
-      run-start path, then post-start SMODS.add_card per slot (editions / stickers)
-                      │
-                      ▼
-                normal Balatro run (saveable, resumable)
+Build Lab panel  ──edits──►  SMODS.RunSelect.Setup.choices.build_lab  (RunConfig, plain data)
+        ▲                                   │  Play (SMODS.RunSelect.Functions.start_run)
+   presets.json  ◄──save/load──             ▼
+                              G.FUNCS.start_run(nil, {build_lab=cfg, deck_choice, stake_choice, seed})
+                                            │
+                              hooks.lua: args.challenge = injector.to_challenge(cfg)
+                                            ▼
+                              vanilla Game:start_run applies jokers (+editions/eternal/pinned) and
+                              starting_params modifiers  →  normal, saveable run
 ```
+The challenge table has no `id`, so `G.GAME.challenge` stays nil: unlocks, high scores and the restart
+button behave exactly as in a normal (or seeded) run.
 
-## Design rules
-- No base-game edits. All vanilla hooks live in `src/hooks.lua`, wrap-and-call-original.
-- No Lovely patches unless unavoidable; each documented in `docs/patches.md`.
-- Native UI only: `UIBox` trees from vanilla helpers, real `Card` objects in a `CardArea`, vanilla
-  colours/sounds. Imitate the closest vanilla screen (run setup, Collection).
-- Config is data, not code. A preset is `{ name, deck, stake, jokers = {{key, edition, stickers}, ...},
-  params = {...}, seed }`. Unknown keys (uninstalled mods) degrade to a warning slot, never a crash.
+## UI approach
+Everything is a `UIBox` tree built from vanilla helpers (`UIBox_button`, `create_option_cycle`,
+`create_toggle`, `create_text_input`) inside Steamodded's page ROOT. Sub-screens (picker, presets) swap
+the content of one `G.UIT.O` node exactly like `G.FUNCS.change_tab` does, so the run-setup overlay and
+Steamodded's nav bar stay alive; `can_continue` disables Next while a sub-screen is open. Every Joker shown
+is a real `Card` in a `CardArea` of type `'title'` (invisible background, vanilla tooltips). CardAreas are
+scrubbed on rebuild and on overlay exit, mirroring Steamodded's own clean-up.
+
+## Design rules (unchanged)
+- No base-game edits; hooks only in `src/hooks.lua`, wrap-and-call-original.
+- No Lovely patches unless unavoidable (none so far; see `docs/patches.md`).
+- Config is data: presets are validated by `run_config.sanitize`; unknown Joker keys become a warning slot.
 - Every API call is verified against source first and logged in `docs/smods-notes.md`.
 
-## Milestones
-M0 env → M1 boot → M2 rarity + placeholder Joker → M3 hardcoded injection → M4 tab + panel →
-M5 picker → M6 editions + params → M7 presets → M8 five Jokers (one commit each) → M9 polish.
-Each ends with an in-game confirmation before the next begins.
+## Content pack notes
+- Rarity key is `bl_impossible` (Steamodded prefixes rarity keys); badge colour `AA0F3C`; name from
+  `misc.dictionary.k_bl_impossible`.
+- All five Jokers guard state mutation with `not context.blueprint and not context.retrigger_joker`, so
+  Blueprint / Brainstorm / Understudy copies deliver effects without double-firing counters.
+- The Forger is `blueprint_compat = false`; the others are copyable.
+- Art: `tools/build_atlas.py` crops the `joker-design-*.png` card frames to 71×95 (1x) and 142×190 (2x).

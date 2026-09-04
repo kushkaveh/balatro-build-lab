@@ -139,3 +139,37 @@ Not yet verified — do not call until a row above exists:
 | `SMODS.RunSelect.Functions.populate_preview_ui(key, to_add, silent, _remove)` / `populate_stake_tower(stake, silent)` | refresh the deck preview / stake tower after changing `choices`; require `Internals.preview_area` / `Internals.stake_tower` (built when the page has `include_deck_preview` / `include_stake_tower`) | `run_select.lua:594-644, 688-719, 74-83` | presets_modal |
 | `localize{type='name_text', set='Back'|'Stake', key=}` | deck / stake display names | `misc_functions.lua:1689-1749`; used by SMODS `runselectpage.lua:122, 155` | presets_modal |
 | CardArea `card_w` | per-area card width for mini previews | `cardarea.lua:5-30`; DeckCreator `GUI.lua:3342` (GPL-3.0) | presets_modal |
+
+## M8 — Impossible Jokers (verified 2026-09-04)
+
+| API / context | Exact behaviour | Source | Used in |
+|---|---|---|---|
+| `SMODS.calculate_context(context, return_table, no_resolve)` | dispatches to jokers (sets `context.main_eval=true` for that pass), playing cards, individual objects | `smods/src/utils.lua:2179-2207` | (indirect) |
+| `context.destroying_card` / `context.destroy_card` | set per scored card after scoring (`destroying_card` only when the card is in `G.play` and scoring); return `{remove = true}` destroys it; card flagged `destroyed`/`shattered`/`getting_sliced` | `smods/src/utils.lua:2334-2372`; vanilla `state_events.lua:950-996` | fun_hoe |
+| `context.joker_main` | return `{xmult=n}` / `{mult=n}` / `{chips=n}` | `better_calc.toml:487`; `game_object.lua:3938-4036` | fun_hoe, bambino |
+| `context.selling_self` | fired from `Card:sell_card` on the sold Joker (+ retrigger variant with `retrigger_joker=true`) | `better_calc.toml:1024-1039`; vanilla `card.lua:1599` | fun_hoe |
+| `context.end_of_round` | `{end_of_round=true, game_over=<bool>, beat_boss, scoring_hand, scoring_name, full_hand}` + `main_eval` on the jokers pass; `{saved=true}` prevents game over | `better_calc.toml:957-964`; `utils.lua:2179-2207` | bambino |
+| `context.before` / `context.after` | once per played hand: `{before|after=true, full_hand, scoring_hand, scoring_name, poker_hands}`; `after` runs after the destroy pass | `better_calc.toml:633, 810`; vanilla order `state_events.lua:950-996, 1068` | jazzy_clown, forger |
+| `context.repetition` | `{repetition=true, other_card=<scored card>, cardarea=G.play|G.hand, card_effects, scoring_hand...}`; return `{repetitions=n, message=, card=}`; chained via `extra` | `smods/src/utils.lua:2244-2251, 1612-1639`; Hanging Chad idiom `card.lua:3352-3358` | jazzy_clown |
+| `context.blueprint`, `context.blueprint_card`, `context.blueprint_copiers_stack`, `context.retrigger_joker`, `context.no_blueprint` | copy depth counter / outermost copier / chain; retrigger flag; guard state mutation with `not context.blueprint and not context.retrigger_joker` | `smods/src/utils.lua:2385-2411`; `lsp_def/utils.lua:7-150` | all Jokers |
+| `SMODS.blueprint_effect(copier, copied_card, context)` | returns copied effect with `.card = blueprint_card`; refuses `blueprint_compat=false`, debuffed, self, `no_blueprint`, depth > #jokers | `smods/src/utils.lua:2385-2411`; `better_calc.toml:2128-2179` | understudy |
+| Effect `extra` chaining | `SMODS.calculate_effect` recurses into `effect.extra` | `smods/src/utils.lua:1425-1427` | understudy |
+| `SMODS.pseudorandom_probability(trigger_obj, seed, num, den, identifier, no_mod) -> bool` / `SMODS.get_probability_vars(trigger_obj, num, den, identifier) -> num, den` | Oops! All 6s applied inside; don't pre-multiply | `smods/src/utils.lua:3215-3231`; `lovely/listed_probabilities.toml:20-23` | jazzy_clown |
+| `SMODS.is_eternal(card, trigger) -> bool` | honours `no_destroy` effects and `eternal_compat` | `smods/src/utils.lua:3255-3274` | fun_hoe |
+| `SMODS.add_card{set='Base'|'Enhanced', enhancement, rank, suit, seal, edition, area, skip_materialize, silent}` | creates a playing card (`rank` = SMODS.Ranks key e.g. `'King'`, `suit` = `'Hearts'`), `add_to_deck`, inserts into `G.playing_cards`, bumps `G.deck.config.card_limit`, emplaces into `area` | `smods/src/utils.lua:375-448, 4505-4526`; `game_object.lua:2158-2330` (Suits/Ranks) | fun_hoe |
+| Playing-card fields | `card.base.value` (`'King'`), `card.base.suit`, `card.base.id` (11-13 faces), `card.seal` (`'Red'`), `card.edition.type`, `card.config.center.key` (`'c_base'`/`'m_*'`) | `card.lua:111-140`, `:464-499`, `:387-462` | fun_hoe, forger |
+| `Card:is_face(from_boss)` | true for J/Q/K or with Pareidolia; nil when debuffed | `card.lua:964-970` | fun_hoe |
+| `Card:set_ability(center, initial, delay_sprites)` / `Card:set_seal(seal, silent, immediate)` | enhancement / seal mutation; seal keys `Gold, Red, Blue, Purple` | `card.lua:223, 464-499`; `game.lua:218-223` | forger |
+| Enhancement centres | `m_bonus, m_mult, m_wild, m_glass, m_steel, m_stone, m_gold, m_lucky` | `game.lua:648-655` | forger |
+| `card_eval_status_text(card, 'extra', nil, nil, nil, {message=, colour=})` | floating status text at a card | `common_events.lua:779-925` | fun_hoe |
+| `pseudorandom_element(t, seed)` / `pseudoseed(key)` | RNG helpers (SMODS accepts string seeds too) | `misc_functions.lua:253-313`; `lovely/pool.toml:10-27` | forger |
+| `G.E_MANAGER:add_event(Event({trigger, delay, func}))` | vanilla event idiom | `engine/event.lua:5-`; `game.lua:2069` | bambino, forger |
+| Vanilla loc keys | `k_again_ex` ("Again!"), `a_xmult` ("X#1# Mult"), `descriptions.Other.red_seal` | `localization/en-us.lua:3546, 4208, 2176` | Jokers |
+
+## M9 — polish (verified 2026-09-04)
+
+| API | Exact signature / behaviour | Source | Used in |
+|---|---|---|---|
+| `mod.config_tab` | `SMODS.current_mod.config_tab = function() return <ROOT node> end`; shown as a "Config" tab in the Mods menu; `mod.config` saved by `SMODS.save_all_config()` on leaving the Mods menu / restart keybind | `smods/src/ui.lua:555-565, 1697-1720`; Cryptid `Cryptid.lua:358-469, 543-544` (GPL-3.0) | `src/ui/buildlab_tab.lua` |
+| `create_toggle{info={...}}` | extra caption lines under a toggle | `UI_definitions.lua:1919-1928` | config tab |
+| Rarity `get_weight` runtime | called every `SMODS.poll_rarity`, so a config toggle changes shop odds without restart | `smods/src/utils.lua:876-918` | `impossible/rarity.lua` |
