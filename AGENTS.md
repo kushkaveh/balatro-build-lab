@@ -32,23 +32,26 @@ Read this before writing anything. Product plan: `build-lab-technical-product-pl
 8. Art: the owner's `joker-design-*.png` files are the source of truth; regenerate the atlas with
    `python tools/build_atlas.py` (never hand-edit `assets/`). Column order = `pos.x` in the Joker files.
 
-## Environment (this machine, verified 2026-09-04)
+## Environment
+
+Machine-specific paths (game folder, Mods folder, reference clones) live in `CLAUDE.local.md`, which is
+git-ignored; create it from the table below on a new machine.
 
 | What | Where |
 |---|---|
-| Game | `<Balatro folder>\Balatro.exe` (v1.0.1o) |
+| Game | the Balatro install folder (Steam: right-click → Manage → Browse local files); Balatro 1.0.1o |
 | Lovely | v0.9.0, `version.dll` next to `Balatro.exe` |
-| Mods dir | `%AppData%\Balatro\Mods\` (`%AppData%\Balatro\Mods\`) |
-| SMODS | `Mods\Steamodded\` — stable 26.829.0 |
-| DebugPlus | `Mods\DebugPlus\` — dev tool, `/` opens console, hold `Tab` for debug menu |
-| This mod | `Mods\BuildLab` is a **directory junction** → `K:\Projects\buildlabmod` (this repo) |
+| Mods dir | `%AppData%\Balatro\Mods\` |
+| SMODS | `Mods\<steamodded folder>\` — stable 26.829.0 |
+| DebugPlus | optional dev tool in `Mods\`; `/` opens console, hold `Tab` for debug menu |
+| This mod | `Mods\BuildLab` — a directory junction to this repo is the recommended dev setup |
 | Lovely log | `%AppData%\Balatro\Mods\lovely\log\` — ask the owner to paste it after any crash |
 | Patched-source dumps | `%AppData%\Balatro\Mods\lovely\dump\` |
-| SMODS source (stable + main) | `K:\Projects\reference-mods\smods\` (read-only; `lsp_def/` has typed API stubs) |
-| GPL reference mods | `K:\Projects\reference-mods\{Galdur,Cryptid,Balatro-DeckCreator}\` (read-only) |
-| Vanilla source | `K:\Projects\balatro-src\` (extracted from the exe, read-only, not in git) |
+| SMODS source (stable + main) | `../reference-mods/smods/` (read-only; `lsp_def/` has typed API stubs) |
+| GPL reference mods | `../reference-mods/{Galdur,Cryptid,Balatro-DeckCreator}/` (read-only) |
+| Vanilla source | `../balatro-src/` (extracted from the exe with Python `zipfile`; read-only, not in git) |
 | Hot restart with mods | `Alt+F5` or hold `M` in-game |
-| Tools | git, gh (not logged in), Python 3.13 (used for zip extraction; no 7-Zip) |
+| Tools | git, Python 3 with Pillow (`tools/build_atlas.py`), `tools/luacheck.py` (needs `BALATRO_DIR`) |
 
 ## Build state (2026-09-04)
 - v1.1.0: ten Impossible Jokers (wave 2: Saving Face, Velvet Rope, The Smelter, The Dude, The Singularity),

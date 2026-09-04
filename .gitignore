@@ -14,6 +14,9 @@ desktop.ini
 presets.json
 presets.json.corrupt
 
+# Machine-specific agent notes
+CLAUDE.local.md
+
 # Local scratch
 *.tmp
 *.bak
