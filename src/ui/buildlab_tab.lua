@@ -13,6 +13,10 @@ BL.ui = BL.ui or {}
 
 SMODS.RunSelectPage {
     key = 'build_lab',
+    -- Keep the key un-prefixed: SMODS labels the nav button with localize('run_select_' .. key) and stores
+    -- the choice under Setup.choices[key], and src/hooks.lua reads args.build_lab. Without this the key
+    -- becomes 'bl_build_lab' (SMODS.add_prefixes, game_object.lua:53-73; opt-out documented at :58).
+    prefix_config = { key = false },
     page = 3,
     include_deck_preview = true,
     include_stake_tower = true,

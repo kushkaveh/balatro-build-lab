@@ -38,6 +38,7 @@ G.FUNCS.exit_overlay_menu = function(...)
     if BL.ui then
         if BL.ui.main_panel then BL.ui.main_panel.cleanup() end
         if BL.ui.joker_picker then BL.ui.joker_picker.cleanup() end
+        if BL.ui.presets_modal then BL.ui.presets_modal.cleanup() end
     end
     return ret
 end
