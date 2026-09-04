@@ -7,7 +7,7 @@
 --- (verified: ../reference-mods/smods/src/preflight/loader.lua:873-895).
 
 BL = BL or {}
-BL.VERSION = '0.4.0'
+BL.VERSION = '0.5.0'
 BL.mod = SMODS.current_mod
 -- mod.config is the merged config.lua + saved config (verified: smods/src/ui.lua:1656-1685, loader.lua:782)
 BL.config = SMODS.current_mod.config or {}
@@ -30,7 +30,7 @@ run_module('src/run_injector.lua')   -- config -> challenge ruleset
 -- M7+  run_module('src/presets.lua')        -- save/load JSON, missing-mod degradation
 run_module('src/ui/main_panel.lua')
 run_module('src/ui/buildlab_tab.lua')
--- M5+  run_module('src/ui/joker_picker.lua')
+run_module('src/ui/joker_picker.lua')
 -- M7+  run_module('src/ui/presets_modal.lua')
 
 -- Content pack (works standalone)

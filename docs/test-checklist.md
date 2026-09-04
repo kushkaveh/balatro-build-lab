@@ -45,6 +45,14 @@ when its section is green.
 - [ ] Back / Esc closes the overlay without errors; reopening shows the last config
 - [ ] Toggle "Hide Build Lab page" in config → page skipped (M9)
 
+## M5 — Joker picker
+- [ ] Pick opens the picker in place (nav Next disabled while open); Back returns to the panel
+- [ ] Grid shows 10 real Joker cards per page with hover tooltips; page label and < > buttons work and wrap
+- [ ] Typing in Search filters live (name or key); rarity cycler filters Common/Uncommon/Rare/Legendary/Impossible/Modded
+- [ ] Clicking a card fills the slot, plays a sound, returns to the panel showing the card
+- [ ] Same Joker in 2+ slots allowed; picking for slot 3 leaves other slots intact
+- [ ] Open/close the picker 20× → no ghost cards, no leaked sprites, no log errors
+
 ## Builder (M4–M6)
 - [ ] Every deck incl. modded; every stake
 - [ ] Empty slots (0–5 Jokers); duplicate Joker in 2+ slots; same Joker ×5

@@ -104,3 +104,14 @@ Not yet verified — do not call until a row above exists:
 | `G.C` colours | `RED, BLUE, ORANGE, GREEN, BLACK, L_BLACK, WHITE, CLEAR, MULT, CHIPS, MONEY, FILTER, UI.TEXT_LIGHT/TEXT_DARK/TEXT_INACTIVE, RARITY[1..4]` | `globals.lua:353-472` | UI |
 | `G.CARD_W / G.CARD_H` | `2.4*35/41`, `2.4*47/41` | `globals.lua:274-275` | UI |
 | Modded-object detection | `center.mod` is set to the registering mod (`nil` for vanilla) | `smods/src/game_object.lua:27` | picker |
+
+## M5 — Joker picker (verified 2026-09-04)
+
+| API | Exact signature / behaviour | Source | Used in |
+|---|---|---|---|
+| `G.P_CENTER_POOLS.Joker` | ordered array of every loaded Joker centre (vanilla + modded); centre fields `key, name, rarity (1-4 or custom key), mod, set='Joker'` | `../balatro-src/game.lua:794-836`; `smods/src/game_object.lua:1313-1332, 1434-1447` | `src/ui/joker_picker.lua` |
+| `create_text_input(args)` | `{w, h, max_length, all_caps, prompt_text, ref_table, ref_value, colour, hooked_colour, text_scale}`; `ref_table[ref_value]` must be a string and is updated live by `G.FUNCS.text_input_key`; quirk: typed `0` becomes `o` | `UI_definitions.lua:2103-2139`; `button_callbacks.lua:899-1000` | picker |
+| `create_option_cycle(args)` | `{options, current_option, opt_callback, w, h, scale, text_scale, colour, no_pips, cycle_shoulders, ref_table, ref_value, label, info, mid, id}`; the args table itself is the node's `ref_table`, so extra fields survive; callback `G.FUNCS[opt_callback]{from_val, to_val, from_key, to_key, cycle_config=args}` | `UI_definitions.lua:1955-2045`; `button_callbacks.lua:537-580` | picker, params |
+| Node `func` per-frame hook | `config.func = 'name'` → `G.FUNCS.name(e)` every frame (vanilla: `can_start_run`, `RUN_SETUP_check_back`) | `UI_definitions.lua:6086, 6115`; `button_callbacks.lua:2058-2066` | picker search poll |
+| `G.UIT.T` with `ref_table/ref_value` | live text bound to a table field | `UI_definitions.lua:252, 713` | pager label |
+| Vanilla dictionary keys reused | `b_back`, `k_page`, `k_none`, `k_common/k_uncommon/k_rare/k_legendary`; edition labels `misc.labels.foil/holographic/polychrome/negative` | `../balatro-src/localization/en-us.lua:3441, 3613, 3620, 3820-3830`; `smods/src/game_object.lua:1048-1055` | UI |

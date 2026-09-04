@@ -135,9 +135,6 @@ function MP.root()
             (#missing > 0) and { n = G.UIT.R, config = { align = 'cm', padding = 0.05 }, nodes = {
                 { n = G.UIT.T, config = { text = localize('bl_missing_hint') .. ' ' .. table.concat(missing, ', '), scale = 0.3, colour = G.C.RED } },
             } } or nil,
-            { n = G.UIT.R, config = { align = 'cm', padding = 0.08 }, nodes = {
-                UIBox_button { id = 'bl_dev_sample', button = 'bl_dev_sample', label = { localize('bl_dev_sample') }, minw = 2.6, minh = 0.5, scale = 0.35, colour = G.C.ORANGE, col = true },
-            } },
         } },
     } }
 end
@@ -167,15 +164,5 @@ end
 G.FUNCS.bl_clear_slot = function(e)
     RC.set_joker(MP.config(), e.config.ref_table.slot, nil)
     play_sound('cardSlide1', nil, 0.4)
-    MP.show_main()
-end
-
--- M4 TEMPORARY: fills the first two slots so the injection path is testable before the picker exists.
-G.FUNCS.bl_dev_sample = function(e)
-    local cfg = MP.config()
-    cfg.jokers[1] = { key = 'j_blueprint', edition = 'e_foil' }
-    cfg.jokers[2] = { key = 'j_bl_understudy', edition = 'e_negative' }
-    cfg.params.dollars = 20
-    play_sound('card1', nil, 0.4)
     MP.show_main()
 end

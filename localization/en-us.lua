@@ -25,7 +25,10 @@ return {
             bl_missing_hint = 'Not loaded:',
             bl_pick = 'Pick',
             bl_change = 'Change',
-            bl_dev_sample = 'DEV: sample build',
+            bl_slot = 'Slot',
+            bl_search = 'Search...',
+            bl_filter_all = 'All',
+            bl_filter_modded = 'Modded',
         },
         labels = {
             k_bl_impossible = 'Impossible',
