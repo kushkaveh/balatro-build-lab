@@ -53,6 +53,14 @@ when its section is green.
 - [ ] Same Joker in 2+ slots allowed; picking for slot 3 leaves other slots intact
 - [ ] Open/close the picker 20× → no ghost cards, no leaked sprites, no log errors
 
+## M6 — editions + advanced params
+- [ ] Edition cycler under a filled slot: Base → Foil → Holographic → Polychrome → Negative; preview card re-shades instantly
+- [ ] Started run: each Joker has the chosen edition; Negative ones don't consume slots (5 Negatives → 5 free slots)
+- [ ] Advanced toggle reveals Money / Hands / Discards / Hand Size / Joker Slots / Consumable Slots cyclers; Auto leaves deck/stake effects intact (Blue Deck still +1 hand)
+- [ ] Set Money 100, Hands 6, Discards 0, Hand Size 12, Joker Slots 8, Consumable Slots 4 → run reflects each
+- [ ] Seed via the SMODS nav-bar toggle: two runs, same seed + same build → identical first shop
+- [ ] Facepocalypse manually buildable and startable (once M8 Jokers exist)
+
 ## Builder (M4–M6)
 - [ ] Every deck incl. modded; every stake
 - [ ] Empty slots (0–5 Jokers); duplicate Joker in 2+ slots; same Joker ×5

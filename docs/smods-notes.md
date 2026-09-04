@@ -115,3 +115,15 @@ Not yet verified — do not call until a row above exists:
 | Node `func` per-frame hook | `config.func = 'name'` → `G.FUNCS.name(e)` every frame (vanilla: `can_start_run`, `RUN_SETUP_check_back`) | `UI_definitions.lua:6086, 6115`; `button_callbacks.lua:2058-2066` | picker search poll |
 | `G.UIT.T` with `ref_table/ref_value` | live text bound to a table field | `UI_definitions.lua:252, 713` | pager label |
 | Vanilla dictionary keys reused | `b_back`, `k_page`, `k_none`, `k_common/k_uncommon/k_rare/k_legendary`; edition labels `misc.labels.foil/holographic/polychrome/negative` | `../balatro-src/localization/en-us.lua:3441, 3613, 3620, 3820-3830`; `smods/src/game_object.lua:1048-1055` | UI |
+
+## M6 — editions + params (verified 2026-09-04)
+
+| API | Exact signature / behaviour | Source | Used in |
+|---|---|---|---|
+| `Card:set_edition(edition, immediate, silent, delay)` (SMODS override) | `edition` = `'e_foil'`-style key (asserts `e_` prefix) or `{foil=true}` / `{type='foil'}`; `nil`/`{}` removes; negative adjusts `card_limit` only when `card.added_to_deck` | `smods/src/overrides.lua:2072-2136`; vanilla `card.lua:387-462` | main_panel (preview), injector (via challenge) |
+| Vanilla edition centres | `e_base, e_foil{extra=50}, e_holo{extra=10}, e_polychrome{extra=1.5}, e_negative{extra=1}`; labels `misc.labels.foil/holographic/polychrome/negative` | `game.lua:658-662`; `localization/en-us.lua:3820-3830`; SMODS take_ownership `game_object.lua:3649-3773` | run_config, main_panel |
+| `create_toggle(args)` | `{label, ref_table, ref_value, callback(new_value), w, scale, label_scale, col, active_colour, inactive_colour, info}`; click → `G.FUNCS.toggle_button` flips the value then calls callback | `UI_definitions.lua:1903-1953`; `button_callbacks.lua:463-487` | main_panel |
+| `localize(key, misc_cat)` | two-arg form reads `G.localization.misc[misc_cat][key]` (e.g. `localize('foil','labels')`) | `misc_functions.lua:1689-1692` | main_panel |
+| `Card:juice_up(scale, rot_amount)` | wobble animation | `card.lua:4333-4338` | UI |
+| `G.C.DARK_EDITION`, `G.C.GREEN` | colours | `globals.lua:353-472` | UI |
+| Starting-param semantics | challenge `rules.modifiers` overwrite `starting_params` after stake and deck effects (`Back:apply_to_run` at `game.lua:2061`), so Build Lab only writes params the user set ("Auto" = untouched) | `game.lua:2050-2106` | run_config, injector |

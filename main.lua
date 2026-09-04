@@ -7,7 +7,7 @@
 --- (verified: ../reference-mods/smods/src/preflight/loader.lua:873-895).
 
 BL = BL or {}
-BL.VERSION = '0.5.0'
+BL.VERSION = '0.6.0'
 BL.mod = SMODS.current_mod
 -- mod.config is the merged config.lua + saved config (verified: smods/src/ui.lua:1656-1685, loader.lua:782)
 BL.config = SMODS.current_mod.config or {}
