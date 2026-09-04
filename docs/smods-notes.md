@@ -53,3 +53,17 @@ Not yet verified — do not call until a row above exists:
 `SMODS.Challenge`, `SMODS.current_mod.config` persistence, `G.P_CENTER_POOLS`, `G.FUNCS.start_run`,
 `Game:start_run`, `G.UIDEF.run_setup_option`, `create_option_cycle`, `UIBox_button`, `create_text_input`,
 `Card:set_edition`, `Card:juice_up`, `CardArea` lifecycle in menus.
+
+## M2 — rarity, atlas, Joker, localization (verified 2026-09-04 against smods stable 26.829.0)
+
+| API | Exact signature / fields | Notes | Source | Used in |
+|---|---|---|---|---|
+| `SMODS.Atlas` | `SMODS.Atlas{key, path, px, py, atlas_table?, frames?, fps?}` | key is mod-prefixed (`bl_jokers`); Jokers reference it un-prefixed (`atlas='jokers'`) because referencing fields are prefixed too. Loads `assets/<1x|2x>/<path>`; either scale alone is enough (other is rescaled) | `../reference-mods/smods/src/game_object.lua:469-563`, `:74-80` | `impossible/rarity.lua` |
+| `SMODS.Rarity` | `SMODS.Rarity{key, badge_colour=HEX'...', default_weight=0, pools={Joker=true|{weight=n}}, get_weight(self, weight, object_type)}` | key becomes `bl_impossible`; `inject` creates `G.P_JOKER_RARITY_POOLS[key]` and `G.C.RARITY[key]`; weight 0 is never selected by `SMODS.poll_rarity`; name from `misc.dictionary['k_'..key:lower()]` and `misc.labels[...]` | `game_object.lua:1026-1075`; `src/utils.lua:876-918`; Cryptid `lib/content.lua:354-374` (GPL-3.0) | `impossible/rarity.lua` |
+| `SMODS.Joker` | fields: `key, atlas, pos{x,y}, rarity (1-4 \| 'Common'.. \| custom key), cost=3, unlocked=true, discovered=false, blueprint_compat=true, eternal_compat=true, perishable_compat=true, config={}, pools, no_collection, in_pool(self,args)`; callbacks `calculate(self, card, context)`, `loc_vars(self, info_queue, card)`, `add_to_deck(self, card, from_debuff)`, `remove_from_deck`, `set_ability`, `update` | final key `j_bl_<key>`; custom rarity asserted against `G.P_JOKER_RARITY_POOLS` | `game_object.lua:1413-1449`, `:1300-1408`; `lovely/center.toml:56-81` | `impossible/jokers/*.lua` |
+| `config.extra` → `card.ability.extra` | every `config` key except `bonus` is copied to `card.ability` (tables deep-copied) | | `lovely/center.toml:22-37` | Jokers |
+| `loc_vars` return | `{vars={...}, key?, set?, scale?, text_colour?}` | | `game_object.lua:1352-1408` | Jokers |
+| `context.joker_main` | `{joker_main=true, cardarea=G.jokers, full_hand, scoring_hand, scoring_name, poker_hands}` | return `{xmult=n}` (also `x_mult`, `Xmult`); `{mult=n}`, `{chips=n}`, `{message=, colour=}` | `lovely/better_calc.toml:487-488`; `game_object.lua:3938-4036` (`x_mult` branch at 4014); `src/utils.lua:1287-1567` | Jokers |
+| Localization file | `localization/en-us.lua` returns `{descriptions={Joker={j_bl_x={name, text={...}}}}, misc={dictionary={}, labels={}}}`; loaded en-us → default → language, file wins over `loc_txt` | text markup `{C:mult}`, `{X:mult,C:white}`, `#1#` as vanilla | `src/utils.lua:187-238`; vanilla `localization/en-us.lua:1032-1038` | `localization/en-us.lua` |
+| `HEX(hex)` | `HEX('RRGGBB[AA]') -> {r,g,b,a}` | vanilla global | `../balatro-src/functions/misc_functions.lua:355` | rarity |
+| `SMODS.current_mod.config` | merged `config.lua` defaults + `config/<id>.jkr`; saved only by `SMODS.save_all_config()` (exit Mods menu / restart keybind); `mod.config_tab = function() return nodes end` adds a Config tab | | `src/ui.lua:1656-1705`, `:555-565`; `src/preflight/loader.lua:782` | `main.lua`, `config.lua` |

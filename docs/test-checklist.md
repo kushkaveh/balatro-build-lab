@@ -5,18 +5,18 @@ Lovely log: `%AppData%\Balatro\Mods\lovely\log\`. Tick items per milestone; a mi
 when its section is green.
 
 ## M0 — Environment
-- [ ] `Balatro.exe` launches with the Lovely console window open
-- [ ] Main menu shows the SMODS **Mods** button and the mod list opens
-- [ ] `Steamodded` shows version `26.829.0`
-- [ ] `DebugPlus` is listed (dev tool)
-- [ ] `docs/smods-notes.md` exists with links
+- [x] `Balatro.exe` launches with the Lovely console window open
+- [x] Main menu shows the SMODS **Mods** button and the mod list opens
+- [x] `Steamodded` shows version `26.829.0`
+- [x] `DebugPlus` is listed (dev tool)
+- [x] `docs/smods-notes.md` exists with links
 
 ## M1 — Mod boots
-- [ ] **Build Lab** is listed in the Mods menu with a crimson badge (`AA0F3C`), version 0.1.0, no error badge
-- [ ] `lovely/log/<latest>.log` contains `:: INFO  :: BuildLab :: Build Lab v0.1.0 loaded`
-- [ ] Log also contains `Valid JSON file found` for the BuildLab folder (the junction is picked up)
-- [ ] Disable Build Lab in the Mods menu → restart → game boots identically without it
-- [ ] Re-enable → restart → listed again
+- [x] **Build Lab** is listed in the Mods menu with a crimson badge (`AA0F3C`), version 0.1.0, no error badge
+- [x] `lovely/log/<latest>.log` contains `:: INFO  :: BuildLab :: Build Lab v0.1.0 loaded`
+- [x] Log also contains `Valid JSON file found` for the BuildLab folder (the junction is picked up)
+- [x] Disable Build Lab in the Mods menu → restart → game boots identically without it
+- [x] Re-enable → restart → listed again
 
 ## Boot (regression, rerun after every Balatro/SMODS update)
 - [ ] Clean install boots vanilla
