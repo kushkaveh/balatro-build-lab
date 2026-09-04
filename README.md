@@ -1,12 +1,13 @@
 # Build Lab
 
 A [Balatro](https://www.playbalatro.com/) mod: a native-styled **custom run builder** plus the
-**Impossible** rarity, five deliberately broken-but-coherent Jokers obtainable only through the Build Lab.
+**Impossible** rarity, ten deliberately broken-but-coherent Jokers obtainable only through the Build Lab.
 
 ## What you get
 
 **Build Lab page** in the New Run flow (Play → deck → stake → **Build Lab** → Play):
-- Five starting-Joker slots. Pick from every loaded Joker (vanilla and modded) in a searchable, paged grid
+- Starting-Joker slots: five to begin with, and every Negative Joker you set opens another (Negatives take no
+  slot in the game), up to 20. Pick from every loaded Joker (vanilla and modded) in a searchable, paged grid
   with a rarity filter and real hover tooltips.
 - Edition per slot: Base, Foil, Holographic, Polychrome, Negative, previewed live on the card.
 - Advanced: starting Money, Hands, Discards, Hand Size, Joker Slots, Consumable Slots ("Auto" keeps the
@@ -25,6 +26,13 @@ A [Balatro](https://www.playbalatro.com/) mod: a native-styled **custom run buil
 - **The Understudy**: copies the Jokers directly left and right.
 - **The Forger**: each hand, every unenhanced scored card gains a random enhancement and one scored card
   gains a Red Seal. Not copyable by Blueprint.
+- **Saving Face**: whenever a face card is destroyed, three random-suit Aces with random enhancements join
+  the deck. Every face erased, an ace takes its place.
+- **Velvet Rope**: each Blind you select lets in a random Rare Joker with Negative edition (stops at 30 Jokers).
+- **The Smelter**: scored cards lose their enhancement; +15 Mult per melt, forever.
+- **The Dude**: at end of round, X0.3 Mult per unused hand and discard. The Dude abides.
+- **The Singularity**: X0.4 Mult every time a Joker or consumable is sold or destroyed (using a consumable
+  does not count, and it never counts itself).
 
 ## Install
 

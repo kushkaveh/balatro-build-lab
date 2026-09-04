@@ -1,7 +1,7 @@
 --- Build Lab main panel: Joker slots rendered as real Cards in CardAreas, an edition cycler under each
 --- slot (live shader preview), a header (Presets / Advanced / Clear) and a one-line status.
 --- Slots are dynamic: 5 base, +1 per Negative-edition Joker (Negatives don't use a slot, card.lua:410-413),
---- or the Joker Slots override, capped at 10. Always ONE row of five full-size slots; more slots are reached
+--- or the Joker Slots override, capped at 20. Always ONE row of five full-size slots; more slots are reached
 --- with < > page arrows, exactly like the Collection pages (UI_definitions.lua:3552-3573).
 --- Height budget: everything must stay under the SMODS deck-preview column (5.95 units,
 --- run_select.lua:565) so the page never pushes the nav bar (screen is 11.5 units, globals.lua:272).

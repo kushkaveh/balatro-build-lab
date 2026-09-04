@@ -51,8 +51,9 @@ Read this before writing anything. Product plan: `build-lab-technical-product-pl
 | Tools | git, gh (not logged in), Python 3.13 (used for zip extraction; no 7-Zip) |
 
 ## Build state (2026-09-04)
-- M0–M9 implemented and committed (v1.0.0). Only M0/M1 were confirmed in-game; M2–M9 await the owner's
-  consolidated test pass against `docs/test-checklist.md`. Fix bugs from that pass before new features.
+- v1.1.0: ten Impossible Jokers (wave 2: Saving Face, Velvet Rope, The Smelter, The Dude, The Singularity),
+  slot cap 20 with Collection-style paging. The owner has confirmed the panel, picker, presets and Saving Face
+  in-game; the other wave-2 Jokers await their checklist items in `docs/test-checklist.md`.
 - Build Lab is a `SMODS.RunSelectPage` (page 3 of Steamodded's run select), not a vanilla tab — see
   `docs/architecture.md` "Deviation from the plan".
 - Tools: `python tools/luacheck.py .` (syntax check with the game's lua51.dll; run before every commit),

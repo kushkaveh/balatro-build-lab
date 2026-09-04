@@ -56,8 +56,8 @@ button behave exactly as in a normal (or seeded) run.
 
 ## Dynamic slots
 Negative Jokers don't occupy a Joker slot (card.lua:410-413), so the panel's capacity is
-`joker_slots (or 5) + number of Negative-edition slots`, capped at 10. Each Negative you set opens one more
-slot. The panel always shows one row of five full-size slots; extra slots live on further pages reached with
+`joker_slots (or 5) + number of Negative-edition slots`, capped at 20. Each Negative you set opens one more
+slot, capped at 20. The panel always shows one row of five full-size slots; extra slots live on further pages reached with
 < > arrows (Collection-style paging), and the status line points at free slots on other pages. Filled slots
 beyond capacity (after removing a Negative) are outlined red and skipped by the injector.
 
@@ -80,5 +80,10 @@ scrubbed on rebuild and on overlay exit, mirroring Steamodded's own clean-up.
   `misc.dictionary.k_bl_impossible`.
 - All five Jokers guard state mutation with `not context.blueprint and not context.retrigger_joker`, so
   Blueprint / Brainstorm / Understudy copies deliver effects without double-firing counters.
-- The Forger is `blueprint_compat = false`; the others are copyable.
+- The Forger is `blueprint_compat = false`; the others are copyable. Saving Face and Velvet Rope create
+  cards, so a copy creates more (vanilla DNA / Riff-Raff precedent); Smelter, Dude and Singularity copies
+  deliver the current Mult/XMult only.
+- Wave 2 (v1.1) contexts: `remove_playing_cards` (Saving Face), `setting_blind` (Velvet Rope), `individual`
+  (Smelter), `end_of_round` + `hands_left/discards_left` (Dude), `selling_card` + `joker_type_destroyed`
+  (Singularity, de-duplicated per `card.sort_id`).
 - Art: `tools/build_atlas.py` crops the `joker-design-*.png` card frames to 71×95 (1x) and 142×190 (2x).
